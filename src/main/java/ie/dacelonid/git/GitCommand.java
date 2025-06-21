@@ -28,8 +28,8 @@ public class GitCommand {
                     fileUtilities.createDirectory(root);
                     fileUtilities.createDirectory(new File(root, "refs"));
                     fileUtilities.createDirectory(new File(root, "objects"));
-                    final File head = new File(root, "HEAD");
 
+                    final File head = new File(root, "HEAD");
                     try {
                         head.createNewFile();
                         Files.write(head.toPath(), "ref: refs/heads/main\n".getBytes());

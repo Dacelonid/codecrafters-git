@@ -1,8 +1,5 @@
-package git;
+package ie.dacelonid.git;
 
-import ie.dacelonid.git.AppConfig;
-import ie.dacelonid.git.GitCommand;
-import ie.dacelonid.git.ZlibHandler;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,8 +17,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SuppressWarnings("ResultOfMethodCallIgnored")
-@SpringJUnitConfig(AppConfig.class)
-    public class GitCommandTest {
+@SpringJUnitConfig(classes = {AppConfig.class})
+public class GitCommandTest {
     @Autowired
     GitCommand objUnderTest;
 
@@ -44,6 +41,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
         assertTrue(new File(tempDir, ".git/objects").exists());
         assertTrue(new File(tempDir, ".git/refs").exists());
         assertTrue(new File(tempDir, ".git/HEAD").exists());
+        assertEquals("ref: refs/heads/main\n", Files.readString(new File(tempDir, ".git/HEAD").toPath()));
         assertEquals("Initialized git directory", outputStreamCaptor.toString().trim());
     }
 
@@ -54,6 +52,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
         assertEquals("Could not initialise directory, already exists", outputStreamCaptor.toString().trim());
     }
+
     @Test
     public void initFailureToCreateRefs(@TempDir File tempDir) throws Exception {
         new File(tempDir, ".git/refs").mkdirs();
