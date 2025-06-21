@@ -1,4 +1,4 @@
-package git;
+package ie.dacelonid.git;
 
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;

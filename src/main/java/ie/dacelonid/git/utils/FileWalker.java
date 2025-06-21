@@ -1,4 +1,4 @@
-package utils;
+package ie.dacelonid.git.utils;
 import java.io.File;
 
 public class FileWalker {
