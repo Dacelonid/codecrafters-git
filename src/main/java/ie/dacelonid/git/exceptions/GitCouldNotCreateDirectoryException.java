@@ -2,7 +2,7 @@ package ie.dacelonid.git.exceptions;
 
 import java.io.File;
 
-public class GitCouldNotCreateDirectoryException extends Throwable {
+public class GitCouldNotCreateDirectoryException extends GitExceptions {
     private final File dir;
 
     public GitCouldNotCreateDirectoryException(File dir) {
