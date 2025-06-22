@@ -1,26 +1,23 @@
 package ie.dacelonid.git;
 
-import ie.dacelonid.git.exceptions.GitCouldNotCreateDirectoryException;
-import ie.dacelonid.git.exceptions.GitCouldNotCreateHead;
-import ie.dacelonid.git.exceptions.GitExceptions;
-import ie.dacelonid.git.exceptions.GitRepoAlreadyExists;
+import ie.dacelonid.git.exceptions.*;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static ie.dacelonid.git.utils.FileUtilities.createDirectory;
-import static ie.dacelonid.git.utils.FileUtilities.readFromFile;
+import static ie.dacelonid.git.utils.FileUtilities.*;
 
 public class GitCommand {
 
-    public void handle(String[] args, Path currentDirectory) throws Exception {
+    public void handleCommand(String[] args, Path currentDirectory) throws Exception {
         final String command = args[0];
         try {
             switch (command) {
                 case "init" -> initializeRepo(currentDirectory);
-                case "cat-file" -> readFromFile(args, currentDirectory);
+                case "cat-file" -> readBlob(args, currentDirectory);
+                case "hash-object" -> writeBlob(args, currentDirectory);
                 default -> System.out.println("Unknown command: " + command);
             }
         } catch (GitCouldNotCreateDirectoryException e) {
@@ -47,6 +44,14 @@ public class GitCommand {
         return gitDirectory;
     }
 
+    private File getGitRootDirectory(Path currentDirectory) throws GitRepoNotInitialized {
+        final File gitDirectory = new File(currentDirectory.toFile(), ".git");
+        if (gitDirectory.exists()) {
+            return gitDirectory;
+        }
+        throw new GitRepoNotInitialized();
+    }
+
     private void createGitDirectoryStructure(File gitDirectory) throws GitCouldNotCreateDirectoryException {
         createDirectory(gitDirectory);
         createDirectory(new File(gitDirectory, "refs"));
@@ -63,6 +68,19 @@ public class GitCommand {
         } catch (IOException e) {
             throw new GitCouldNotCreateHead();
         }
+    }
+
+    private void readBlob(String[] args, Path currentDirectory) throws Exception {
+        final File blob = getBlob(args, getGitRootDirectory(currentDirectory));
+        String fileContents = getUncompressedBlobContents(blob);
+        System.out.print(fileContents);
+    }
+
+    private void writeBlob(String[] args, Path currentDirectory) throws Exception {
+        String contentToWrite = getFileContentsToWriteToBlob(args, currentDirectory);
+        String sha1 = sha1(contentToWrite);
+        createBlob(sha1, getGitRootDirectory(currentDirectory), contentToWrite);
+        System.out.print(sha1);
     }
 
 
