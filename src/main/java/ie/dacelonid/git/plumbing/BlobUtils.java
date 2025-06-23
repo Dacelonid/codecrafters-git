@@ -10,9 +10,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
+import static ie.dacelonid.git.utils.FileUtilities.computeSha1;
+import static ie.dacelonid.git.utils.FileUtilities.getFileContentsToWriteToBlob;
+
 public class BlobUtils {
 
-    public static void createBlob(String sha1, File gitRootDirectory, String contents) throws Exception {
+    public static void createBlob(File gitRootDirectory, String sha1, String contents) throws Exception {
         final File blob_dir = new File(gitRootDirectory, "objects/" + sha1.substring(0, 2));
         blob_dir.mkdirs();
         File blobFile = new File(blob_dir, sha1.substring(2));
@@ -20,30 +23,30 @@ public class BlobUtils {
     }
 
     public static void printBlob(String sha1, File gitRootDir) throws Exception {
-        final File blob = getBlob(gitRootDir, sha1);
+        final File blob = getFileFromSha1Hash(gitRootDir, sha1);
         String fileContents = FileUtilities.getUncompressedFileContents(blob);
-        System.out.println(fileContents.substring(fileContents.indexOf("\0") + 1));
+        System.out.print(fileContents.substring(fileContents.indexOf("\0") + 1));
     }
 
-    public static File getBlob(File gitRootDirectory, String sha1) {
+    public static File getFileFromSha1Hash(File gitRootDirectory, String sha1) {
         String dir = sha1.substring(0, 2); //Directory is first 2 characters of SHA1
-        String blobname = sha1.substring(2); //Filename is the remaining SHA1
-        final File blob = new File(gitRootDirectory, "objects/" + dir + "/" + blobname);
-        if (!blob.exists()) {
+        String fileName = sha1.substring(2); //Filename is the remaining SHA1
+        final File file = new File(gitRootDirectory, "objects/" + dir + "/" + fileName);
+        if (!file.exists()) {
             System.out.println("File does not exist");
         }
-        return blob;
+        return file;
     }
 
-    public static void writeBlob(String[] args, File gitRootDir, Path currentDirectory) throws Exception {
-        String contentToWrite = FileUtilities.getFileContentsToWriteToBlob(args, currentDirectory);
-        String sha1 = FileUtilities.computeSha1(contentToWrite);
-        createBlob(sha1, gitRootDir, contentToWrite);
+    public static void writeBlob(String fileName, File gitRootDir, Path currentDirectory) throws Exception {
+        String contentToWrite = getFileContentsToWriteToBlob(fileName, currentDirectory);
+        String sha1 = computeSha1(contentToWrite);
+        createBlob(gitRootDir, sha1, contentToWrite);
         System.out.print(sha1);
     }
 
-    public static void listTree(String[] args, File gitRootDir) throws Exception {
-        File treeFile = getBlob(gitRootDir, args[args.length - 1]);
+    public static void listTree(String sha1, File gitRootDir) throws Exception {
+        File treeFile = getFileFromSha1Hash(gitRootDir, sha1);
         if(treeFile.exists()) {
             byte[] decompressed = ZlibHandler.decompress(Files.readAllBytes(treeFile.toPath()));
             List<TreeEntry> entries = GitTreeParser.parseTree(decompressed);

@@ -41,8 +41,7 @@ public class FileUtilities {
         return sb.toString();
     }
 
-    public static String getFileContentsToWriteToBlob(String[] args, Path currentDirectory) throws IOException {
-        String filename = args[args.length - 1];
+    public static String getFileContentsToWriteToBlob(String filename, Path currentDirectory) throws IOException {
         String contents = Files.readString(new File(currentDirectory.toFile(), filename).toPath());
         return "blob " + contents.length() + "\0" + contents;
     }

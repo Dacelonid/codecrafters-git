@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static ie.dacelonid.git.plumbing.BlobUtils.*;
 import static ie.dacelonid.git.utils.FileUtilities.*;
 
 public class GitCommand {
@@ -18,9 +19,9 @@ public class GitCommand {
             final File gitRootDirectory = getGitRootDirectory(currentDirectory);
             switch (command) {
                 case "init" -> initializeRepo(gitRootDirectory);
-                case "cat-file" -> BlobUtils.printBlob(args[args.length-1], gitRootDirectory);
-                case "hash-object" -> BlobUtils.writeBlob(args, gitRootDirectory, currentDirectory);
-                case "ls-tree" -> BlobUtils.listTree(args, gitRootDirectory);
+                case "cat-file" -> printBlob(getCommandTarget(args), gitRootDirectory);
+                case "hash-object" -> writeBlob(getCommandTarget(args), gitRootDirectory, currentDirectory);
+                case "ls-tree" -> listTree(getCommandTarget(args), gitRootDirectory);
                 default -> System.out.println("Unknown command: " + command);
             }
         } catch (GitCouldNotCreateDirectoryException e) {
@@ -31,6 +32,10 @@ public class GitCommand {
 
     }
 
+    private File getGitRootDirectory(Path currentDirectory) throws GitRepoNotInitialized {
+        return new File(currentDirectory.toFile(), ".git");
+    }
+
     private void initializeRepo(File gitRootDir) throws GitExceptions {
         if(gitRootDir.exists()){
             throw new GitRepoAlreadyExists();
@@ -38,10 +43,6 @@ public class GitCommand {
         createGitDirectoryStructure(gitRootDir);
         createHeadFile(gitRootDir);
         System.out.println("Initialized git directory");
-    }
-
-    private File getGitRootDirectory(Path currentDirectory) throws GitRepoNotInitialized {
-        return new File(currentDirectory.toFile(), ".git");
     }
 
     private void createGitDirectoryStructure(File gitDirectory) throws GitCouldNotCreateDirectoryException {
@@ -60,5 +61,9 @@ public class GitCommand {
         } catch (IOException e) {
             throw new GitCouldNotCreateHead();
         }
+    }
+
+    private static String getCommandTarget(String[] args) {
+        return args[args.length - 1];
     }
 }
