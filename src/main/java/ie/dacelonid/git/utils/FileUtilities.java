@@ -18,33 +18,12 @@ public class FileUtilities {
             throw new GitCouldNotCreateDirectoryException(dir);
     }
 
-
-    public static File getBlob(String[] args, File gitRootDirectory) {
-        final String sha1 = args[args.length - 1];
-        String dir = sha1.substring(0, 2); //Directory is first 2 characters of SHA1
-        String blobname = sha1.substring(2); //Filename is the remaining SHA1
-        final File blob = new File(gitRootDirectory, "objects/" + dir + "/" + blobname);
-        if (!blob.exists()) {
-            System.out.println("File does not exist");
-        }
-        return blob;
-    }
-
-    public static String getUncompressedBlobContents(File objectFile) throws Exception {
+    public static String getUncompressedFileContents(File objectFile) throws Exception {
         byte[] decompressed = ZlibHandler.decompress(Files.readAllBytes(objectFile.toPath()));
-        String fileContents = new String(decompressed, StandardCharsets.UTF_8);
-        fileContents = fileContents.substring(fileContents.indexOf("\0") + 1);
-        return fileContents;
+        return new String(decompressed, StandardCharsets.UTF_8);
     }
 
-    public static void createBlob(String sha1, File gitRootDirectory, String contents) throws Exception {
-        final File blob_dir = new File(gitRootDirectory, "objects/" + sha1.substring(0, 2));
-        blob_dir.mkdirs();
-        File blobFile = new File(blob_dir, sha1.substring(2));
-        Files.write(blobFile.toPath(), ZlibHandler.compress(contents.getBytes()));
-    }
-
-    public static String sha1(String input) {
+    public static String computeSha1(String input) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-1");
             byte[] hashBytes = digest.digest(input.getBytes(StandardCharsets.UTF_8));
@@ -67,4 +46,5 @@ public class FileUtilities {
         String contents = Files.readString(new File(currentDirectory.toFile(), filename).toPath());
         return "blob " + contents.length() + "\0" + contents;
     }
+
 }

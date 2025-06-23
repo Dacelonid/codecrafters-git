@@ -1,19 +1,12 @@
 package ie.dacelonid.git;
 
 import ie.dacelonid.git.exceptions.*;
-import ie.dacelonid.git.utils.FileWalker;
-import ie.dacelonid.git.utils.GitTreeParser;
-import ie.dacelonid.git.utils.TreeEntry;
+import ie.dacelonid.git.plumbing.BlobUtils;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.List;
 
 import static ie.dacelonid.git.utils.FileUtilities.*;
 
@@ -22,11 +15,12 @@ public class GitCommand {
     public void handleCommand(String[] args, Path currentDirectory) throws Exception {
         final String command = args[0];
         try {
+            final File gitRootDirectory = getGitRootDirectory(currentDirectory);
             switch (command) {
-                case "init" -> initializeRepo(currentDirectory);
-                case "cat-file" -> readBlob(args, currentDirectory);
-                case "hash-object" -> writeBlob(args, currentDirectory);
-                case "ls-tree" -> listTree(args, currentDirectory);
+                case "init" -> initializeRepo(gitRootDirectory);
+                case "cat-file" -> BlobUtils.printBlob(args[args.length-1], gitRootDirectory);
+                case "hash-object" -> BlobUtils.writeBlob(args, gitRootDirectory, currentDirectory);
+                case "ls-tree" -> BlobUtils.listTree(args, gitRootDirectory);
                 default -> System.out.println("Unknown command: " + command);
             }
         } catch (GitCouldNotCreateDirectoryException e) {
@@ -37,38 +31,17 @@ public class GitCommand {
 
     }
 
-    private void listTree(String[] args, Path currentDirectory) throws Exception {
-        String hash = args[args.length - 1];
-        File treeFile = new File(currentDirectory.toFile(), ".git/objects/" + hash.substring(0,2) + "/" + hash.substring(2));
-        if(treeFile.exists()) {
-            byte[] decompressed = ZlibHandler.decompress(Files.readAllBytes(treeFile.toPath()));
-            List<TreeEntry> entries = GitTreeParser.parseTree(decompressed);
-            entries.forEach(s -> System.out.println(s.name()) );
+    private void initializeRepo(File gitRootDir) throws GitExceptions {
+        if(gitRootDir.exists()){
+            throw new GitRepoAlreadyExists();
         }
-    }
-
-    private void initializeRepo(Path currentDirectory) throws GitExceptions {
-        final File gitDirectory = getGitRootDirectoryIfNotExisting(currentDirectory);
-        createGitDirectoryStructure(gitDirectory);
-
-        createHeadFile(gitDirectory);
+        createGitDirectoryStructure(gitRootDir);
+        createHeadFile(gitRootDir);
         System.out.println("Initialized git directory");
     }
 
-    private File getGitRootDirectoryIfNotExisting(Path currentDirectory) throws GitRepoAlreadyExists {
-        final File gitDirectory = new File(currentDirectory.toFile(), ".git");
-        if (gitDirectory.exists()) {
-            throw new GitRepoAlreadyExists();
-        }
-        return gitDirectory;
-    }
-
     private File getGitRootDirectory(Path currentDirectory) throws GitRepoNotInitialized {
-        final File gitDirectory = new File(currentDirectory.toFile(), ".git");
-        if (gitDirectory.exists()) {
-            return gitDirectory;
-        }
-        throw new GitRepoNotInitialized();
+        return new File(currentDirectory.toFile(), ".git");
     }
 
     private void createGitDirectoryStructure(File gitDirectory) throws GitCouldNotCreateDirectoryException {
@@ -87,18 +60,5 @@ public class GitCommand {
         } catch (IOException e) {
             throw new GitCouldNotCreateHead();
         }
-    }
-
-    private void readBlob(String[] args, Path currentDirectory) throws Exception {
-        final File blob = getBlob(args, getGitRootDirectory(currentDirectory));
-        String fileContents = getUncompressedBlobContents(blob);
-        System.out.print(fileContents);
-    }
-
-    private void writeBlob(String[] args, Path currentDirectory) throws Exception {
-        String contentToWrite = getFileContentsToWriteToBlob(args, currentDirectory);
-        String sha1 = sha1(contentToWrite);
-        createBlob(sha1, getGitRootDirectory(currentDirectory), contentToWrite);
-        System.out.print(sha1);
     }
 }
