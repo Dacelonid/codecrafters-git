@@ -18,9 +18,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class GitCommandTest {
 
     private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
+    private GitCommand objUnderTest;
 
     @BeforeEach
     public void setUp() {
+        objUnderTest = new GitCommand();
         System.setOut(new PrintStream(outputStreamCaptor));
     }
 
@@ -29,9 +31,9 @@ public class GitCommandTest {
         System.setOut(System.out);
     }
 
+
     @Test
     public void initCreatesRepo(@TempDir File tempDir) throws Exception {
-        GitCommand objUnderTest = new GitCommand();
         objUnderTest.handleCommand(new String[]{"init"}, tempDir.toPath());
         assertTrue(new File(tempDir, ".git").exists());
         assertTrue(new File(tempDir, ".git/objects").exists());
@@ -43,7 +45,6 @@ public class GitCommandTest {
 
     @Test
     public void initDirectoryExistsDoesnotCreateRepo(@TempDir File tempDir) throws Exception {
-        GitCommand objUnderTest = new GitCommand();
         new File(tempDir, ".git").mkdirs();
         objUnderTest.handleCommand(new String[]{"init"}, tempDir.toPath());
 
@@ -52,7 +53,6 @@ public class GitCommandTest {
 
     @Test
     public void initFailureToCreateRefs(@TempDir File tempDir) throws Exception {
-        GitCommand objUnderTest = new GitCommand();
         new File(tempDir, ".git/refs").mkdirs();
         objUnderTest.handleCommand(new String[]{"init"}, tempDir.toPath());
 
@@ -61,7 +61,6 @@ public class GitCommandTest {
 
     @Test
     public void catFilePrettyPrintGetExpectedContents(@TempDir File tempDir) throws Exception {
-        GitCommand objUnderTest = new GitCommand();
         String sha1 = "d51f91af8d4760bc86841d6d00ce6eaf15254f38";
         String actualContent = "doo doo scooby horsey vanilla doo";
 
@@ -75,7 +74,6 @@ public class GitCommandTest {
 
     @Test
     public void hashObjectCreatesFileAndPrintsSHA1(@TempDir File tempDir) throws Exception {
-        GitCommand objUnderTest = new GitCommand();
         String actualContent = "mango apple blueberry orange pear raspberry";
         String expectedSha1 = "64d73c5f262a3a02dc16ca2c86b0828c34e179f4";
         objUnderTest.handleCommand(new String[]{"init"}, tempDir.toPath()); //Need to initialize repo so we can write the blob
@@ -93,5 +91,10 @@ public class GitCommandTest {
 
         //Check file contents
         assertEquals(actualContent, readBlob(tempDir, "64d73c5f262a3a02dc16ca2c86b0828c34e179f4"));
+    }
+
+    @Test
+    public void lsTreeExistingTreePrintsOutTheNamesOfTheDirectories(@TempDir File tempDir) throws Exception {
+        objUnderTest.handleCommand(new String[]{"init"}, tempDir.toPath()); //Need to initialize repo so we can create the dirs
     }
 }

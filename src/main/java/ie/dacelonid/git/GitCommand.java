@@ -1,11 +1,19 @@
 package ie.dacelonid.git;
 
 import ie.dacelonid.git.exceptions.*;
+import ie.dacelonid.git.utils.FileWalker;
+import ie.dacelonid.git.utils.GitTreeParser;
+import ie.dacelonid.git.utils.TreeEntry;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.List;
 
 import static ie.dacelonid.git.utils.FileUtilities.*;
 
@@ -18,6 +26,7 @@ public class GitCommand {
                 case "init" -> initializeRepo(currentDirectory);
                 case "cat-file" -> readBlob(args, currentDirectory);
                 case "hash-object" -> writeBlob(args, currentDirectory);
+                case "ls-tree" -> listTree(args, currentDirectory);
                 default -> System.out.println("Unknown command: " + command);
             }
         } catch (GitCouldNotCreateDirectoryException e) {
@@ -26,6 +35,16 @@ public class GitCommand {
             System.out.println(e.getMessage());
         }
 
+    }
+
+    private void listTree(String[] args, Path currentDirectory) throws Exception {
+        String hash = args[args.length - 1];
+        File treeFile = new File(currentDirectory.toFile(), ".git/objects/" + hash.substring(0,2) + "/" + hash.substring(2));
+        if(treeFile.exists()) {
+            byte[] decompressed = ZlibHandler.decompress(Files.readAllBytes(treeFile.toPath()));
+            List<TreeEntry> entries = GitTreeParser.parseTree(decompressed);
+            entries.forEach(s -> System.out.println(s.name()) );
+        }
     }
 
     private void initializeRepo(Path currentDirectory) throws GitExceptions {
@@ -82,6 +101,4 @@ public class GitCommand {
         createBlob(sha1, getGitRootDirectory(currentDirectory), contentToWrite);
         System.out.print(sha1);
     }
-
-
 }

@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 
 @SuppressWarnings("ResultOfMethodCallIgnored")
 public class TestUtils {
@@ -28,14 +27,13 @@ public class TestUtils {
 
     public static String readBlob(File tempDir, String sha1) throws Exception {
         final File root = new File(tempDir, ".git");
-        final File blob = getBlob(sha1, root);
+        final File blob = getBlob(sha1.substring(0, 2), sha1.substring(2), root);
         return getUncompressedBlobContents(blob);
     }
 
-    private static File getBlob(String sha1, File root) {
-        String dir = sha1.substring(0, 2); //Directory is first 2 characters of SHA1
-        String blobname = sha1.substring(2); //Filename is the remaining SHA1
-        final File blob = new File(root, "objects/" + dir + "/" + blobname);
+    public static File getBlob(String dir, String blobName, File root) {
+
+        final File blob = new File(root, "objects/" + dir + "/" + blobName);
         if (!blob.exists()) {
             System.out.println("File does not exist");
         }
