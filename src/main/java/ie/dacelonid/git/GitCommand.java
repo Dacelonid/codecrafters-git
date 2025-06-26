@@ -1,7 +1,8 @@
 package ie.dacelonid.git;
 
-import ie.dacelonid.git.exceptions.*;
-import ie.dacelonid.git.plumbing.RepoUtils;
+import ie.dacelonid.git.exceptions.GitCouldNotCreateDirectoryException;
+import ie.dacelonid.git.exceptions.GitExceptions;
+import ie.dacelonid.git.exceptions.GitRepoAlreadyExists;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -31,7 +32,7 @@ public class GitCommand {
     }
 
     private void initializeRepo(File gitRootDir) throws GitExceptions {
-        if(gitRootDir.exists()){
+        if (gitRootDir.exists()) {
             throw new GitRepoAlreadyExists();
         }
         createGitDirectoryStructure(gitRootDir);

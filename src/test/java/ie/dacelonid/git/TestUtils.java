@@ -13,7 +13,7 @@ public class TestUtils {
         Files.write(blob.toPath(), ZlibHandler.compress(contentToWrite.getBytes()));
     }
 
-    private static File createFileForBlob(File tempDir, String sha1) throws IOException {
+    public static File createFileForBlob(File tempDir, String sha1) throws IOException {
         File file = new File(tempDir, ".git/objects/" + sha1.substring(0, 2));
         file.mkdirs();
         File testFile = new File(file, sha1.substring(2));

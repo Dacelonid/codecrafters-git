@@ -47,10 +47,10 @@ public class BlobUtils {
 
     public static void listTree(String sha1, File gitRootDir) throws Exception {
         File treeFile = getFileFromSha1Hash(gitRootDir, sha1);
-        if(treeFile.exists()) {
+        if (treeFile.exists()) {
             byte[] decompressed = ZlibHandler.decompress(Files.readAllBytes(treeFile.toPath()));
             List<TreeEntry> entries = GitTreeParser.parseTree(decompressed);
-            entries.forEach(s -> System.out.println(s.name()) );
+            entries.forEach(s -> System.out.println(s.name()));
         }
     }
 }
