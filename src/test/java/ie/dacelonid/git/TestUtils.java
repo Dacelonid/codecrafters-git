@@ -1,9 +1,15 @@
 package ie.dacelonid.git;
 
+import ie.dacelonid.git.utils.TreeEntry;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.List;
+
+import static ie.dacelonid.git.utils.GitTreeParser.serializeTree;
 
 @SuppressWarnings("ResultOfMethodCallIgnored")
 public class TestUtils {
@@ -47,4 +53,23 @@ public class TestUtils {
         return fileContents;
     }
 
+    public static String createTreeFile(File tempDir, String[] fileContents) throws IOException {
+        String givenSha1 = "be80d6b281f79ac42fe6e632209841a2dcadb061"; //hardcoded valid sha1 hash, but isn't a hash of the actual contents of the file
+        File treeFile = createFileForBlob(tempDir, givenSha1);
+        Files.write(treeFile.toPath(), ZlibHandler.compress(getTreeFileContents(fileContents)));
+        return givenSha1;
+    }
+
+    public static byte[] getTreeFileContents(String[] fileContents) {
+        List<TreeEntry> entries = new ArrayList<>();
+        String mode = "";
+        for(String fileContent : fileContents) {
+            if(fileContent.startsWith("dir"))
+                mode = "040000";
+            else
+                mode = "100644";
+            entries.add(new TreeEntry(mode, fileContent, new byte[20]));
+        }
+        return serializeTree(entries);
+    }
 }

@@ -23,19 +23,20 @@ public class BlobUtils {
     }
 
     public static void printBlob(String sha1, File gitRootDir) throws Exception {
-        final File blob = getFileFromSha1Hash(gitRootDir, sha1);
-        String fileContents = FileUtilities.getUncompressedFileContents(blob);
+        String fileContents = getBlobContents(sha1, gitRootDir);
         System.out.print(fileContents.substring(fileContents.indexOf("\0") + 1));
+        System.out.println();
+    }
+
+    public static String getBlobContents(String sha1, File gitRootDir) throws Exception {
+        final File blob = getFileFromSha1Hash(gitRootDir, sha1);
+        return FileUtilities.getUncompressedFileContents(blob);
     }
 
     public static File getFileFromSha1Hash(File gitRootDirectory, String sha1) {
         String dir = sha1.substring(0, 2); //Directory is first 2 characters of SHA1
         String fileName = sha1.substring(2); //Filename is the remaining SHA1
-        final File file = new File(gitRootDirectory, "objects/" + dir + "/" + fileName);
-        if (!file.exists()) {
-            System.out.println("File does not exist");
-        }
-        return file;
+        return new File(gitRootDirectory, "objects/" + dir + "/" + fileName);
     }
 
     public static void writeBlob(String fileName, File gitRootDir, Path currentDirectory) throws Exception {
