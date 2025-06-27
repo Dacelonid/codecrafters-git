@@ -25,7 +25,6 @@ public class BlobUtils {
     public static void printBlob(String sha1, File gitRootDir) throws Exception {
         String fileContents = getBlobContents(sha1, gitRootDir);
         System.out.print(fileContents.substring(fileContents.indexOf("\0") + 1));
-        System.out.println();
     }
 
     public static String getBlobContents(String sha1, File gitRootDir) throws Exception {
