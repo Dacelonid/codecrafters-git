@@ -144,7 +144,7 @@ public class GitCommandTest {
     }
 
     @Test
-    public void lsTreeExistingTreePrintsOutTheNamesOfTheDirectories(@TempDir File tempDir) throws Exception {
+    public void lsTreeExistingTreePrintsOutTheNamesOnly(@TempDir File tempDir) throws Exception {
         String[] expectedResult = {"dir1", "dir2", "filename.txt"};
         String givenSha1 = createTreeFile(tempDir, expectedResult);
 
@@ -153,4 +153,40 @@ public class GitCommandTest {
         String[] actualOutput = Arrays.stream(outputStreamCaptor.toString().split("\\R")).toArray(String[]::new);
         assertArrayEquals(expectedResult, actualOutput);
     }
+
+    @Test
+    public void lsTreeExistingTreePrintsOnlyDirectories(@TempDir File tempDir) throws Exception {
+        String[] expectedResult = {"dir1", "dir2", "filename.txt"};
+        String givenSha1 = createTreeFile(tempDir, expectedResult);
+
+        objUnderTest.handleCommand(new String[]{"ls-tree", "--name-only ", givenSha1}, tempDir.toPath());
+
+        String[] actualOutput = Arrays.stream(outputStreamCaptor.toString().split("\\R")).toArray(String[]::new);
+        assertArrayEquals(expectedResult, actualOutput);
+    }
+
+    @Test
+    public void lsTreeExistingTreePrintsOnlyObjects(@TempDir File tempDir) throws Exception {
+        String[] expectedResult = {"dir1", "dir2", "filename.txt"};
+        String givenSha1 = createTreeFile(tempDir, expectedResult);
+
+        objUnderTest.handleCommand(new String[]{"ls-tree", "--name-only ", givenSha1}, tempDir.toPath());
+
+        String[] actualOutput = Arrays.stream(outputStreamCaptor.toString().split("\\R")).toArray(String[]::new);
+        assertArrayEquals(expectedResult, actualOutput);
+    }
+
+
+    @Test
+    public void lsTreeExistingRecurseIntoTrees(@TempDir File tempDir) throws Exception {
+        String[] expectedResult = {"dir1", "dir2", "filename.txt"};
+        String givenSha1 = createTreeFile(tempDir, expectedResult);
+
+        objUnderTest.handleCommand(new String[]{"ls-tree", "--name-only ", givenSha1}, tempDir.toPath());
+
+        String[] actualOutput = Arrays.stream(outputStreamCaptor.toString().split("\\R")).toArray(String[]::new);
+        assertArrayEquals(expectedResult, actualOutput);
+    }
+
+
 }
