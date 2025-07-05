@@ -121,7 +121,7 @@ public class GitCommandTest {
         String actualContent = "mango apple blueberry orange pear raspberry";
         String expectedSha1 = "64d73c5f262a3a02dc16ca2c86b0828c34e179f4";
         //create file with the content of ActualContent
-        writeToFile(new File(tempDir, "filename.txt"), actualContent);
+        Files.write(new File(tempDir, "filename.txt").toPath(), actualContent.getBytes());
         objUnderTest.handleCommand(new String[]{"hash-object", "-w", "filename.txt"}, tempDir.toPath());
 
         String[] output = Arrays.stream(outputStreamCaptor.toString().split("\\R")).toArray(String[]::new);
@@ -139,8 +139,6 @@ public class GitCommandTest {
     @Test
     public void lsTreeExistingTreePrintsOutTheNamesOnly() throws Exception {
         String[] expectedResult = {"dir1", "dir2", "file1.txt"};
-        String givenSha1 = createTreeFile(tempDir, expectedResult);
-
         objUnderTest.handleCommand(new String[]{"ls-tree", "--name-only ", "f77b5382e65983a53f2b3cf01be995b5449ba307"}, tempDir.toPath());
 
         String[] actualOutput = Arrays.stream(outputStreamCaptor.toString().split("\\R")).toArray(String[]::new);
@@ -150,7 +148,6 @@ public class GitCommandTest {
     @Test//needs updating
     public void lsTreeExistingTreePrintsOnlyDirectories() throws Exception {
         String[] expectedResult = {"dir1", "dir2", "file1.txt"};
-        String givenSha1 = createTreeFile(tempDir, expectedResult);
 
         objUnderTest.handleCommand(new String[]{"ls-tree", "--name-only ", "f77b5382e65983a53f2b3cf01be995b5449ba307"}, tempDir.toPath());
 
@@ -161,7 +158,6 @@ public class GitCommandTest {
     @Test //needs changing
     public void lsTreeExistingTreePrintsOnlyObjects() throws Exception {
         String[] expectedResult = {"dir1", "dir2", "file1.txt"};
-        String givenSha1 = createTreeFile(tempDir, expectedResult);
 
         objUnderTest.handleCommand(new String[]{"ls-tree", "--name-only ", "f77b5382e65983a53f2b3cf01be995b5449ba307"}, tempDir.toPath());
 
