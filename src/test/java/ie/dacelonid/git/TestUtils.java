@@ -4,8 +4,11 @@ import ie.dacelonid.git.utils.TreeEntry;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,5 +74,23 @@ public class TestUtils {
             entries.add(new TreeEntry(mode, fileContent, new byte[20]));
         }
         return serializeTree(entries);
+    }
+
+    public static void copyGitObjectsFromResources(Path tempDir) throws IOException {
+        Path gitObjectsSrc = Path.of("src/test/resources/objects");
+        Path gitObjectsDest = tempDir.resolve(".git").resolve("objects");
+        Files.createDirectories(gitObjectsDest);
+        Files.walk(gitObjectsSrc).forEach(source -> {
+            try {
+                Path dest = gitObjectsDest.resolve(gitObjectsSrc.relativize(source));
+                if (Files.isDirectory(source)) {
+                    Files.createDirectories(dest);
+                } else {
+                    Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
+                }
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        });
     }
 }
