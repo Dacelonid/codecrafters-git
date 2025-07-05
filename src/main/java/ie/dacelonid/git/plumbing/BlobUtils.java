@@ -1,6 +1,7 @@
 package ie.dacelonid.git.plumbing;
 
 import ie.dacelonid.git.ZlibHandler;
+import ie.dacelonid.git.exceptions.GitExceptions;
 import ie.dacelonid.git.utils.FileUtilities;
 import ie.dacelonid.git.utils.GitTreeParser;
 import ie.dacelonid.git.utils.TreeEntry;
@@ -45,12 +46,12 @@ public class BlobUtils {
         System.out.print(sha1);
     }
 
-    public static void listTree(String sha1, File gitRootDir) throws Exception {
+    public static List<TreeEntry> listTree(String sha1, File gitRootDir) throws Exception {
         File treeFile = getFileFromSha1Hash(gitRootDir, sha1);
         if (treeFile.exists()) {
             byte[] decompressed = ZlibHandler.decompress(Files.readAllBytes(treeFile.toPath()));
-            List<TreeEntry> entries = GitTreeParser.parseTree(decompressed);
-            entries.forEach(s -> System.out.println(s.name()));
+            return GitTreeParser.parseTree(decompressed);
         }
+        throw new GitExceptions();
     }
 }

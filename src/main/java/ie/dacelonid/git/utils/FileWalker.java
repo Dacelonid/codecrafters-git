@@ -5,12 +5,12 @@ import java.io.File;
 public class FileWalker {
     public static void listFilesRecursively(File dirOrFile) {
         if (dirOrFile == null || !dirOrFile.exists()) {
-            System.out.println("Invalid path: " + dirOrFile);
+            System.err.println("Invalid path: " + dirOrFile);
             return;
         }
 
         if (dirOrFile.isDirectory()) {
-            System.out.println("[DIR]  " + dirOrFile.getAbsolutePath());
+            System.err.println("[DIR]  " + dirOrFile.getAbsolutePath());
             File[] children = dirOrFile.listFiles();
             if (children != null) {
                 for (File file : children) {
@@ -18,7 +18,7 @@ public class FileWalker {
                 }
             }
         } else {
-            System.out.println("[FILE] " + dirOrFile.getAbsolutePath());
+            System.err.println("[FILE] " + dirOrFile.getAbsolutePath());
 //            try {
 //                System.out.println("Blob ->" + getUncompressedFileContents(dirOrFile));
 //            } catch (Exception e) {

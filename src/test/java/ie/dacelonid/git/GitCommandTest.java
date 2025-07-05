@@ -1,5 +1,6 @@
 package ie.dacelonid.git;
 
+import ie.dacelonid.git.utils.FileWalker;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -139,7 +140,7 @@ public class GitCommandTest {
     @Test
     public void lsTreeExistingTreePrintsOutTheNamesOnly() throws Exception {
         String[] expectedResult = {"dir1", "dir2", "file1.txt"};
-        objUnderTest.handleCommand(new String[]{"ls-tree", "--name-only ", "f77b5382e65983a53f2b3cf01be995b5449ba307"}, tempDir.toPath());
+        objUnderTest.handleCommand(new String[]{"ls-tree", "--name-only", "f77b5382e65983a53f2b3cf01be995b5449ba307"}, tempDir.toPath());
 
         String[] actualOutput = Arrays.stream(outputStreamCaptor.toString().split("\\R")).toArray(String[]::new);
         assertArrayEquals(expectedResult, actualOutput);
@@ -147,9 +148,9 @@ public class GitCommandTest {
 
     @Test//needs updating
     public void lsTreeExistingTreePrintsOnlyDirectories() throws Exception {
-        String[] expectedResult = {"dir1", "dir2", "file1.txt"};
+        String[] expectedResult = {"dir1", "dir2"};
 
-        objUnderTest.handleCommand(new String[]{"ls-tree", "--name-only ", "f77b5382e65983a53f2b3cf01be995b5449ba307"}, tempDir.toPath());
+        objUnderTest.handleCommand(new String[]{"ls-tree", "-d", "f77b5382e65983a53f2b3cf01be995b5449ba307"}, tempDir.toPath());
 
         String[] actualOutput = Arrays.stream(outputStreamCaptor.toString().split("\\R")).toArray(String[]::new);
         assertArrayEquals(expectedResult, actualOutput);
@@ -159,7 +160,7 @@ public class GitCommandTest {
     public void lsTreeExistingTreePrintsOnlyObjects() throws Exception {
         String[] expectedResult = {"dir1", "dir2", "file1.txt"};
 
-        objUnderTest.handleCommand(new String[]{"ls-tree", "--name-only ", "f77b5382e65983a53f2b3cf01be995b5449ba307"}, tempDir.toPath());
+        objUnderTest.handleCommand(new String[]{"ls-tree", "--name-only", "f77b5382e65983a53f2b3cf01be995b5449ba307"}, tempDir.toPath());
 
         String[] actualOutput = Arrays.stream(outputStreamCaptor.toString().split("\\R")).toArray(String[]::new);
         assertArrayEquals(expectedResult, actualOutput);
@@ -168,8 +169,8 @@ public class GitCommandTest {
 
     @Test//needs changing
     public void lsTreeExistingRecurseIntoTrees() throws Exception {
-        String[] expectedResult = {"dir1", "dir2", "file1.txt"};
-        objUnderTest.handleCommand(new String[]{"ls-tree", "--name-only ", "f77b5382e65983a53f2b3cf01be995b5449ba307"}, tempDir.toPath());
+        String[] expectedResult = {"dir1", "dir11", "file2.txt", "file3.txt", "dir12", "file4.txt", "file1.txt", "dir2", "file5.txt", "file6.txt", "file1.txt"};
+        objUnderTest.handleCommand(new String[]{"ls-tree", "-r", "f77b5382e65983a53f2b3cf01be995b5449ba307"}, tempDir.toPath());
 
         String[] actualOutput = Arrays.stream(outputStreamCaptor.toString().split("\\R")).toArray(String[]::new);
         assertArrayEquals(expectedResult, actualOutput);

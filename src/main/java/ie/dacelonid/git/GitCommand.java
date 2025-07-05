@@ -1,6 +1,7 @@
 package ie.dacelonid.git;
 
 import ie.dacelonid.git.commands.CatFileCommand;
+import ie.dacelonid.git.commands.LsTreeCommand;
 import ie.dacelonid.git.exceptions.GitCouldNotCreateDirectoryException;
 import ie.dacelonid.git.exceptions.GitExceptions;
 import ie.dacelonid.git.exceptions.GitRepoAlreadyExists;
@@ -21,7 +22,7 @@ public class GitCommand {
                 case "init" -> initializeRepo(gitRootDirectory);
                 case "cat-file" -> CatFileCommand.fromOption(getCommandOptions(args)).handle(getCommandTarget(args), gitRootDirectory);
                 case "hash-object" -> writeBlob(getCommandTarget(args), gitRootDirectory, currentDirectory);
-                case "ls-tree" -> listTree(getCommandTarget(args), gitRootDirectory);
+                case "ls-tree" -> LsTreeCommand.fromOption(getCommandOptions(args)).handle(getCommandTarget(args), gitRootDirectory);
                 default -> System.out.println("Unknown command: " + command);
             }
         } catch (GitCouldNotCreateDirectoryException e) {
