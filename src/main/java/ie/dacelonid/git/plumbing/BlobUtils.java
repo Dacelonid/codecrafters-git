@@ -10,10 +10,8 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.List;
 
-import static ie.dacelonid.git.utils.HexUtilities.bytesToHex;
 import static ie.dacelonid.git.utils.HexUtilities.computeSha1;
 import static ie.dacelonid.git.utils.FileUtilities.getFileContentsToWriteToBlob;
 
@@ -26,11 +24,13 @@ public class BlobUtils {
         Files.write(blobFile.toPath(), ZlibHandler.compress(contents.getBytes()));
     }
 
-    public static void printBlob(String fileContents) throws Exception {
-        System.out.print(fileContents.substring(fileContents.indexOf("\0") + 1));
+    public static void printBlob(String objectId, File gitRootDirectory) throws Exception {
+        String contents = new String(getBlobContents(objectId, gitRootDirectory), StandardCharsets.UTF_8);
+        System.out.print(contents.substring(contents.indexOf("\0") + 1));
     }
 
-    public static void printTree(byte[] full) throws Exception {
+    public static void printTree(String objectId, File gitRootDirectory) throws Exception {
+        byte[] full = getBlobContents(objectId, gitRootDirectory);
         List<TreeEntry> treeEntries = GitTreeParser.parseTree(full);
         treeEntries.forEach(System.out::println);
     }
@@ -54,11 +54,11 @@ public class BlobUtils {
     }
 
     public static List<TreeEntry> listTree(String sha1, File gitRootDir) throws Exception {
-        File treeFile = getFileFromSha1Hash(gitRootDir, sha1);
-        if (treeFile.exists()) {
-            byte[] decompressed = ZlibHandler.decompress(Files.readAllBytes(treeFile.toPath()));
-            return GitTreeParser.parseTree(decompressed);
-        }
-        throw new GitExceptions();
+        return GitTreeParser.parseTree(getBlobContents(sha1, gitRootDir));
+    }
+
+    public static String getTypeFromSha1(String objectId, File gitRootDirectory) throws Exception {
+        String contents = new String(getBlobContents(objectId, gitRootDirectory), StandardCharsets.UTF_8);
+        return contents.split("\0")[0].split(" ")[0];
     }
 }

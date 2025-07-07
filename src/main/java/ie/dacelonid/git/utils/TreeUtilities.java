@@ -31,7 +31,7 @@ public class TreeUtilities {
                     objects.addAll(getAllFilesAndDirs(gitDirectory, child));
                 }
                 String sha1 = writeTree(gitDirectory, objects);
-                return List.of(new TreeObject("40000", "tree", HexUtilities.hexToBytes(sha1), dirOrFile.getName()));
+                return List.of(new TreeObject("040000", "tree", HexUtilities.hexToBytes(sha1), dirOrFile.getName()));
             }
         } else {
             String sha1 = writeBlob(dirOrFile.getName(), gitDirectory, dirOrFile.toPath().getParent());

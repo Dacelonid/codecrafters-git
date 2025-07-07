@@ -8,10 +8,10 @@ public class TreeEntry{
     private final String type;
 
     public TreeEntry(String mode, String name, byte[] sha1) {
-        this.mode = ("40000".equals(mode)?"040000":mode);
+        this.mode = mode;
         this.name = name;
         this.sha1 = sha1;
-        this.type = ("40000".equals(mode)?"tree":"blob");
+        this.type = ("040000".equals(mode)?"tree":"blob");
     }
 
     public String getMode() {

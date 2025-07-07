@@ -9,13 +9,11 @@ public enum CatFileCommand {
     PRINT("-p") {
         @Override
         public void handle(String objectId, File gitRootDirectory) throws Exception {
-            byte[] blobContents = getBlobContents(objectId, gitRootDirectory);
-            String contents = new String(blobContents, StandardCharsets.UTF_8);
-            String type = contents.split("\0")[0].split(" ")[0];
+            String type = getTypeFromSha1(objectId, gitRootDirectory);
             if("blob".equals(type)) {
-                printBlob(contents);
+                printBlob(objectId, gitRootDirectory);
             }else
-                printTree(blobContents);
+                printTree(objectId, gitRootDirectory);
         }
     },
     EXISTS("-e") {
@@ -30,10 +28,10 @@ public enum CatFileCommand {
     TYPE("-t") {
         @Override
         public void handle(String objectId, File gitRootDirectory) throws Exception {
-            String contents = new String(getBlobContents(objectId, gitRootDirectory), StandardCharsets.UTF_8);
-            String type = contents.split("\0")[0].split(" ")[0];
+            String type = getTypeFromSha1(objectId, gitRootDirectory);
             System.out.println(type);
         }
+
     }, SIZE("-s"){
         @Override
         public void handle(String objectId, File gitRootDirectory) throws Exception {
