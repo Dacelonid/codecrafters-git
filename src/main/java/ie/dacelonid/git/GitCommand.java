@@ -1,16 +1,20 @@
 package ie.dacelonid.git;
 
 import ie.dacelonid.git.commands.CatFileCommand;
+import ie.dacelonid.git.commands.HashObjectCommand;
 import ie.dacelonid.git.commands.LsTreeCommand;
 import ie.dacelonid.git.exceptions.GitCouldNotCreateDirectoryException;
 import ie.dacelonid.git.exceptions.GitExceptions;
 import ie.dacelonid.git.exceptions.GitRepoAlreadyExists;
+import ie.dacelonid.git.utils.TreeObject;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.List;
 
-import static ie.dacelonid.git.plumbing.BlobUtils.*;
 import static ie.dacelonid.git.plumbing.RepoUtils.*;
+import static ie.dacelonid.git.utils.HexUtilities.bytesToHex;
+import static ie.dacelonid.git.utils.TreeUtilities.getAllFilesAndDirs;
 
 public class GitCommand {
 
@@ -21,8 +25,9 @@ public class GitCommand {
             switch (command) {
                 case "init" -> initializeRepo(gitRootDirectory);
                 case "cat-file" -> CatFileCommand.fromOption(getCommandOptions(args)).handle(getCommandTarget(args), gitRootDirectory);
-                case "hash-object" -> writeBlob(getCommandTarget(args), gitRootDirectory, currentDirectory);
+                case "hash-object" -> HashObjectCommand.handle(getCommandTarget(args), gitRootDirectory, currentDirectory);
                 case "ls-tree" -> LsTreeCommand.fromOption(getCommandOptions(args)).handle(getCommandTarget(args), gitRootDirectory);
+                case "write-tree" -> writeTree(gitRootDirectory, currentDirectory);
                 default -> System.out.println("Unknown command: " + command);
             }
         } catch (GitCouldNotCreateDirectoryException e) {
@@ -31,6 +36,14 @@ public class GitCommand {
             System.out.println(e.getMessage());
         }
 
+    }
+
+    private void writeTree(File gitRootDirectory, Path currentDirectory) throws Exception {
+        List<TreeObject> allFilesAndDirs = getAllFilesAndDirs(gitRootDirectory, currentDirectory.toFile());
+        TreeObject object = allFilesAndDirs.getFirst();
+
+        String x = bytesToHex(object.sha1());
+        System.out.println(x);
     }
 
     private String getCommandOptions(String[] args) {

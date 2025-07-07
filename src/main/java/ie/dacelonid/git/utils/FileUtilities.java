@@ -4,12 +4,15 @@ import ie.dacelonid.git.ZlibHandler;
 import ie.dacelonid.git.exceptions.GitCouldNotCreateDirectoryException;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.util.zip.DeflaterOutputStream;
+
+import static ie.dacelonid.git.plumbing.BlobUtils.getFileFromSha1Hash;
 
 public class FileUtilities {
 
@@ -23,27 +26,20 @@ public class FileUtilities {
         return new String(decompressed, StandardCharsets.UTF_8);
     }
 
-    public static String computeSha1(String input) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-1");
-            byte[] hashBytes = digest.digest(input.getBytes(StandardCharsets.UTF_8));
-            return bytesToHex(hashBytes);
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("SHA-1 algorithm not available", e);
-        }
-    }
-
-    public static String bytesToHex(byte[] bytes) {
-        StringBuilder sb = new StringBuilder();
-        for (byte b : bytes) {
-            sb.append(String.format("%02x", b)); // lowercase hex
-        }
-        return sb.toString();
-    }
-
     public static String getFileContentsToWriteToBlob(String filename, Path currentDirectory) throws IOException {
         String contents = Files.readString(new File(currentDirectory.toFile(), filename).toPath());
         return "blob " + contents.length() + "\0" + contents;
     }
 
+    public static void writeObject(File gitDir, String sha1, byte[] data) throws IOException, GitCouldNotCreateDirectoryException {
+        String dir = sha1.substring(0, 2);
+        File objectDir = new File(gitDir, "objects/" + dir);
+        File objectFile = getFileFromSha1Hash(gitDir, sha1);
+        if (!objectFile.exists()) {
+            createDirectory(objectDir);
+            try (OutputStream out = new DeflaterOutputStream(new FileOutputStream(objectFile))) {
+                out.write(data);
+            }
+        }
+    }
 }

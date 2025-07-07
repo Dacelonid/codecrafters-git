@@ -1,6 +1,5 @@
 package ie.dacelonid.git;
 
-import ie.dacelonid.git.utils.FileWalker;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -125,10 +124,8 @@ public class GitCommandTest {
         Files.write(new File(tempDir, "filename.txt").toPath(), actualContent.getBytes());
         objUnderTest.handleCommand(new String[]{"hash-object", "-w", "filename.txt"}, tempDir.toPath());
 
-        String[] output = Arrays.stream(outputStreamCaptor.toString().split("\\R")).toArray(String[]::new);
         String[] expectedResult = {"64d73c5f262a3a02dc16ca2c86b0828c34e179f4"};
-
-        assertArrayEquals(expectedResult, output);
+        verifyOutput(expectedResult);
 
         //Check file exists
         assertTrue(tempDir.toPath().resolve(".git/objects/" + expectedSha1.substring(0, 2) + "/" + expectedSha1.substring(2)).toFile().exists());
@@ -142,8 +139,7 @@ public class GitCommandTest {
         String[] expectedResult = {"dir1", "dir2", "file1.txt"};
         objUnderTest.handleCommand(new String[]{"ls-tree", "--name-only", "f77b5382e65983a53f2b3cf01be995b5449ba307"}, tempDir.toPath());
 
-        String[] actualOutput = Arrays.stream(outputStreamCaptor.toString().split("\\R")).toArray(String[]::new);
-        assertArrayEquals(expectedResult, actualOutput);
+        verifyOutput(expectedResult);
     }
 
     @Test//needs updating
@@ -152,8 +148,7 @@ public class GitCommandTest {
 
         objUnderTest.handleCommand(new String[]{"ls-tree", "-d", "f77b5382e65983a53f2b3cf01be995b5449ba307"}, tempDir.toPath());
 
-        String[] actualOutput = Arrays.stream(outputStreamCaptor.toString().split("\\R")).toArray(String[]::new);
-        assertArrayEquals(expectedResult, actualOutput);
+        verifyOutput(expectedResult);
     }
 
     @Test //needs changing
@@ -162,8 +157,7 @@ public class GitCommandTest {
 
         objUnderTest.handleCommand(new String[]{"ls-tree", "--name-only", "f77b5382e65983a53f2b3cf01be995b5449ba307"}, tempDir.toPath());
 
-        String[] actualOutput = Arrays.stream(outputStreamCaptor.toString().split("\\R")).toArray(String[]::new);
-        assertArrayEquals(expectedResult, actualOutput);
+        verifyOutput(expectedResult);
     }
 
 
@@ -172,9 +166,25 @@ public class GitCommandTest {
         String[] expectedResult = {"dir1", "dir11", "file2.txt", "file3.txt", "dir12", "file4.txt", "file1.txt", "dir2", "file5.txt", "file6.txt", "file1.txt"};
         objUnderTest.handleCommand(new String[]{"ls-tree", "-r", "f77b5382e65983a53f2b3cf01be995b5449ba307"}, tempDir.toPath());
 
+        verifyOutput(expectedResult);
+    }
+
+    @Test
+    public void writeTreeCreatesTreesAndBlobs(@TempDir File tempDir) throws Exception {
+        String[] expectedResult = {"1ea9540ce1ede682cfb8b14801ed2f001b5f2e6f"};
+        Files.write(new File(tempDir, "test32").toPath(), "hello World 1".getBytes());
+        Files.write(new File(tempDir, "test33").toPath(), "hello World 2".getBytes());
+        File subdir = new File(tempDir, "subdir");
+        subdir.mkdirs();
+        Files.write(new File(subdir, "test34").toPath(), "hello World 4".getBytes());
+        objUnderTest.handleCommand(new String[]{"write-tree"}, tempDir.toPath());
+
+        verifyOutput(expectedResult);
+    }
+
+    private void verifyOutput(String[] expectedResult) {
         String[] actualOutput = Arrays.stream(outputStreamCaptor.toString().split("\\R")).toArray(String[]::new);
         assertArrayEquals(expectedResult, actualOutput);
     }
-
 
 }
