@@ -39,11 +39,11 @@ public class GitTreeParser {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
         for (TreeEntry entry : entries) {
-            String header = entry.mode() + " " + entry.name();
+            String header = entry.getMode() + " " + entry.getName();
             byte[] headerBytes = header.getBytes(StandardCharsets.UTF_8);
             out.writeBytes(headerBytes);
             out.write(0); // null separator between header and SHA
-            out.writeBytes(entry.sha1()); // raw SHA-1 bytes (20 bytes)
+            out.writeBytes(entry.getSha1()); // raw SHA-1 bytes (20 bytes)
         }
 
         // Prepend the Git object header: "tree <size>\0"

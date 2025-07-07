@@ -17,8 +17,8 @@ public class HexUtilities {
         return computeSha1(input.getBytes(StandardCharsets.UTF_8));
     }
 
-    public static String computeSha1(byte[] input){
-        MessageDigest md = null;
+    public static String computeSha1(byte[] input) {
+        MessageDigest md;
         try {
             md = MessageDigest.getInstance("SHA-1");
         } catch (NoSuchAlgorithmException e) {

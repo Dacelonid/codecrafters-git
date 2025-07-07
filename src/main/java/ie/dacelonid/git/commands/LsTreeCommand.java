@@ -13,7 +13,7 @@ public enum LsTreeCommand {
         @Override
         public void handle(String objectId, File gitRootDirectory) throws Exception {
             List<TreeEntry> treeEntries = listTree(objectId, gitRootDirectory);
-            treeEntries.forEach(treeEntry -> System.out.println(treeEntry.name()));
+            treeEntries.forEach(treeEntry -> System.out.println(treeEntry.getName()));
         }
     },
     TREES("-d") {
@@ -21,8 +21,8 @@ public enum LsTreeCommand {
         public void handle(String objectId, File gitRootDirectory) throws Exception {
             List<TreeEntry> treeEntries = listTree(objectId, gitRootDirectory);
             treeEntries.stream()
-                    .filter(t -> "40000".equals(t.mode()))
-                    .map(TreeEntry::name)
+                    .filter(t -> "tree".equals(t.getType()))
+                    .map(TreeEntry::getName)
                     .forEach(System.out::println);
         }
 
@@ -32,10 +32,10 @@ public enum LsTreeCommand {
         public void handle(String objectId, File gitRootDirectory) throws Exception {
             List<TreeEntry> treeEntries = listTree(objectId, gitRootDirectory); //geteverything on the root dir
             for (TreeEntry treeEntry : treeEntries) {
-                System.out.println(treeEntry.name());
-                if ("40000".equals(treeEntry.mode())) {
+                System.out.println(treeEntry.getName());
+                if ("040000".equals(treeEntry.getMode())) {
                     try {
-                        handle(bytesToHex(treeEntry.sha1()), gitRootDirectory);
+                        handle(bytesToHex(treeEntry.getSha1()), gitRootDirectory);
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }

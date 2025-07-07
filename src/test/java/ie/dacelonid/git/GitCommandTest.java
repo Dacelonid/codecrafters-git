@@ -11,7 +11,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static ie.dacelonid.git.TestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -180,11 +182,35 @@ public class GitCommandTest {
         objUnderTest.handleCommand(new String[]{"write-tree"}, tempDir.toPath());
 
         verifyOutput(expectedResult);
+
+        verifyAllSha1sAreCorrectAndAccountedFor(tempDir);
+    }
+
+    private void verifyAllSha1sAreCorrectAndAccountedFor(File tempDir) throws Exception {
+        List<TestData> testData = getTestData();
+        for(TestData td:testData){
+            outputStreamCaptor.reset();
+            objUnderTest.handleCommand(new String[]{"cat-file", "-p", td.sha1()}, tempDir.toPath());
+            verifyOutput(td.expectedOutput());
+            outputStreamCaptor.reset();
+            objUnderTest.handleCommand(new String[]{"cat-file", "-t", td.sha1()}, tempDir.toPath());
+            verifyOutput(new String[]{td.type()} );
+        }
+    }
+
+    private static List<TestData> getTestData() {
+        List<TestData>testData = new ArrayList<>();
+        testData.add(new TestData("1551da829dad8697a8e55cc6c4e8033dc66f031c",new String[]{"hello World 2"}, "blob"));
+        testData.add(new TestData("3b167a44261258c3c1e351089ec7de6bc43f73f9",new String[]{"hello World 1"}, "blob"));
+        testData.add(new TestData("6f0684f76f518604ca40ea553612a7a00abc690b",new String[]{"hello World 4"}, "blob"));
+        testData.add(new TestData("1ea9540ce1ede682cfb8b14801ed2f001b5f2e6f",new String[]{"040000 tree 5aa1306163b3971a731a90d3b29046f37809fdaf subdir", "100644 blob 3b167a44261258c3c1e351089ec7de6bc43f73f9 test32", "100644 blob 1551da829dad8697a8e55cc6c4e8033dc66f031c test33" }, "tree"));
+        testData.add(new TestData("5aa1306163b3971a731a90d3b29046f37809fdaf",new String[]{"100644 blob 6f0684f76f518604ca40ea553612a7a00abc690b test34"}, "tree"));
+        return testData;
     }
 
     private void verifyOutput(String[] expectedResult) {
         String[] actualOutput = Arrays.stream(outputStreamCaptor.toString().split("\\R")).toArray(String[]::new);
-        assertArrayEquals(expectedResult, actualOutput);
+        assertArrayEquals(expectedResult, actualOutput, Arrays.toString(actualOutput));
     }
 
 }

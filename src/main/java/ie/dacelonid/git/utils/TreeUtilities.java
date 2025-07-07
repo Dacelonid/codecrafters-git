@@ -10,13 +10,19 @@ import java.util.Comparator;
 import java.util.List;
 
 import static ie.dacelonid.git.plumbing.BlobUtils.writeBlob;
+import static ie.dacelonid.git.utils.HexUtilities.bytesToHex;
 import static ie.dacelonid.git.utils.HexUtilities.computeSha1;
 import static ie.dacelonid.git.utils.FileUtilities.writeObject;
 
 
 public class TreeUtilities {
 
-    public static List<TreeObject> getAllFilesAndDirs(File gitDirectory, File dirOrFile) throws Exception {
+    public static String writeTree(File gitDirectory, File dirOrFile) throws Exception {
+        List<TreeObject> objects = getAllFilesAndDirs(gitDirectory, dirOrFile);
+        return bytesToHex(objects.getFirst().sha1());
+    }
+
+    private static List<TreeObject> getAllFilesAndDirs(File gitDirectory, File dirOrFile) throws Exception {
         List<TreeObject> objects = new ArrayList<>();
         if (dirOrFile.isDirectory()) {
             File[] children = dirOrFile.listFiles();

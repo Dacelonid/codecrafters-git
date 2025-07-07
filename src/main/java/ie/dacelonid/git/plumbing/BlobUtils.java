@@ -7,10 +7,13 @@ import ie.dacelonid.git.utils.GitTreeParser;
 import ie.dacelonid.git.utils.TreeEntry;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
 
+import static ie.dacelonid.git.utils.HexUtilities.bytesToHex;
 import static ie.dacelonid.git.utils.HexUtilities.computeSha1;
 import static ie.dacelonid.git.utils.FileUtilities.getFileContentsToWriteToBlob;
 
@@ -23,12 +26,16 @@ public class BlobUtils {
         Files.write(blobFile.toPath(), ZlibHandler.compress(contents.getBytes()));
     }
 
-    public static void printBlob(String sha1, File gitRootDir) throws Exception {
-        String fileContents = getBlobContents(sha1, gitRootDir);
+    public static void printBlob(String fileContents) throws Exception {
         System.out.print(fileContents.substring(fileContents.indexOf("\0") + 1));
     }
 
-    public static String getBlobContents(String sha1, File gitRootDir) throws Exception {
+    public static void printTree(byte[] full) throws Exception {
+        List<TreeEntry> treeEntries = GitTreeParser.parseTree(full);
+        treeEntries.forEach(System.out::println);
+    }
+
+    public static byte[] getBlobContents(String sha1, File gitRootDir) throws Exception {
         final File blob = getFileFromSha1Hash(gitRootDir, sha1);
         return FileUtilities.getUncompressedFileContents(blob);
     }

@@ -1,6 +1,7 @@
 package ie.dacelonid.git.commands;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 
 import static ie.dacelonid.git.plumbing.BlobUtils.*;
 
@@ -8,7 +9,13 @@ public enum CatFileCommand {
     PRINT("-p") {
         @Override
         public void handle(String objectId, File gitRootDirectory) throws Exception {
-            printBlob(objectId, gitRootDirectory);
+            byte[] blobContents = getBlobContents(objectId, gitRootDirectory);
+            String contents = new String(blobContents, StandardCharsets.UTF_8);
+            String type = contents.split("\0")[0].split(" ")[0];
+            if("blob".equals(type)) {
+                printBlob(contents);
+            }else
+                printTree(blobContents);
         }
     },
     EXISTS("-e") {
@@ -23,14 +30,14 @@ public enum CatFileCommand {
     TYPE("-t") {
         @Override
         public void handle(String objectId, File gitRootDirectory) throws Exception {
-            String contents = getBlobContents(objectId, gitRootDirectory);
+            String contents = new String(getBlobContents(objectId, gitRootDirectory), StandardCharsets.UTF_8);
             String type = contents.split("\0")[0].split(" ")[0];
             System.out.println(type);
         }
     }, SIZE("-s"){
         @Override
         public void handle(String objectId, File gitRootDirectory) throws Exception {
-            String contents = getBlobContents(objectId, gitRootDirectory);
+            String contents = new String(getBlobContents(objectId, gitRootDirectory), StandardCharsets.UTF_8);
             String type = contents.split("\0")[0].split(" ")[1];
             System.out.println(type);
         }

@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.zip.DeflaterOutputStream;
@@ -21,9 +20,8 @@ public class FileUtilities {
             throw new GitCouldNotCreateDirectoryException(dir);
     }
 
-    public static String getUncompressedFileContents(File objectFile) throws Exception {
-        byte[] decompressed = ZlibHandler.decompress(Files.readAllBytes(objectFile.toPath()));
-        return new String(decompressed, StandardCharsets.UTF_8);
+    public static byte[] getUncompressedFileContents(File objectFile) throws Exception {
+        return ZlibHandler.decompress(Files.readAllBytes(objectFile.toPath()));
     }
 
     public static String getFileContentsToWriteToBlob(String filename, Path currentDirectory) throws IOException {
