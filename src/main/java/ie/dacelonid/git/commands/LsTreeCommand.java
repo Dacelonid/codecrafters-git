@@ -1,6 +1,6 @@
 package ie.dacelonid.git.commands;
 
-import ie.dacelonid.git.utils.TreeEntry;
+import ie.dacelonid.git.plumbing.GitObject;
 
 import java.io.File;
 import java.util.List;
@@ -12,17 +12,17 @@ public enum LsTreeCommand {
     NAME_ONLY("--name-only") {
         @Override
         public void handle(String objectId, File gitRootDirectory) throws Exception {
-            List<TreeEntry> treeEntries = listTree(objectId, gitRootDirectory);
+            List<GitObject> treeEntries = listTree(objectId, gitRootDirectory);
             treeEntries.forEach(treeEntry -> System.out.println(treeEntry.getName()));
         }
     },
     TREES("-d") {
         @Override
         public void handle(String objectId, File gitRootDirectory) throws Exception {
-            List<TreeEntry> treeEntries = listTree(objectId, gitRootDirectory);
+            List<GitObject> treeEntries = listTree(objectId, gitRootDirectory);
             treeEntries.stream()
                     .filter(t -> "tree".equals(t.getType()))
-                    .map(TreeEntry::getName)
+                    .map(GitObject::getName)
                     .forEach(System.out::println);
         }
 
@@ -30,12 +30,12 @@ public enum LsTreeCommand {
     RECURSE("-r") {
         @Override
         public void handle(String objectId, File gitRootDirectory) throws Exception {
-            List<TreeEntry> treeEntries = listTree(objectId, gitRootDirectory); //geteverything on the root dir
-            for (TreeEntry treeEntry : treeEntries) {
-                System.out.println(treeEntry.getName());
-                if ("040000".equals(treeEntry.getMode())) {
+            List<GitObject> treeEntries = listTree(objectId, gitRootDirectory); //geteverything on the root dir
+            for (GitObject objects : treeEntries) {
+                System.out.println(objects.getName());
+                if ("040000".equals(objects.getMode())) {
                     try {
-                        handle(bytesToHex(treeEntry.getSha1()), gitRootDirectory);
+                        handle(bytesToHex(objects.getSha1()), gitRootDirectory);
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }

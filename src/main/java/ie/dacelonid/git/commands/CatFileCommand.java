@@ -1,7 +1,8 @@
 package ie.dacelonid.git.commands;
 
+import ie.dacelonid.git.plumbing.GitObject;
+
 import java.io.File;
-import java.util.Optional;
 
 import static ie.dacelonid.git.plumbing.BlobUtils.*;
 
@@ -19,7 +20,7 @@ public enum CatFileCommand {
     EXISTS("-e") {
         @Override
         public void handle(String objectId, File gitRootDirectory) throws Exception {
-            File objectFile = getFileFromSha1Hash(gitRootDirectory, objectId);
+            File objectFile = GitObject.getFileFromSha1Hash(gitRootDirectory, objectId);
             if(!objectFile.exists()){
                 System.out.println("fatal: Not a valid object name " + objectId);
             }

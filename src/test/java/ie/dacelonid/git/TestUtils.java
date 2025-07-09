@@ -1,7 +1,5 @@
 package ie.dacelonid.git;
 
-import ie.dacelonid.git.utils.TreeEntry;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -9,10 +7,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.List;
-
-import static ie.dacelonid.git.utils.GitTreeParser.serializeTree;
 
 public class TestUtils {
 

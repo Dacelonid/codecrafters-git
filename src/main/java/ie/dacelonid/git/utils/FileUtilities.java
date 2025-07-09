@@ -11,7 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.zip.DeflaterOutputStream;
 
-import static ie.dacelonid.git.plumbing.BlobUtils.getFileFromSha1Hash;
+import static ie.dacelonid.git.plumbing.GitObject.getFileFromSha1Hash;
 
 public class FileUtilities {
 

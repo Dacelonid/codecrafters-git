@@ -1,13 +1,15 @@
 package ie.dacelonid.git.utils;
 
+import ie.dacelonid.git.plumbing.GitObject;
+
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 public class GitTreeParser {
-    public static List<TreeEntry> parseTree(byte[] data) {
-        List<TreeEntry> entries = new ArrayList<>();
+    public static List<GitObject> parseTree(byte[] data) {
+        List<GitObject> entries = new ArrayList<>();
         int i = 0;
 
         // Skip header: "tree <size>\0"
@@ -30,15 +32,15 @@ public class GitTreeParser {
             System.arraycopy(data, i, sha, 0, 20);
             i += 20;
 
-            entries.add(new TreeEntry(mode, name, sha));
+            entries.add(new GitObject.GitObjectBuilder().mode(mode).name(name).sha1(sha).build());
         }
         return entries;
     }
 
-    public static byte[] serializeTree(List<TreeEntry> entries) {
+    public static byte[] serializeTree(List<GitObject> entries) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-        for (TreeEntry entry : entries) {
+        for (GitObject entry : entries) {
             String header = entry.getMode() + " " + entry.getName();
             byte[] headerBytes = header.getBytes(StandardCharsets.UTF_8);
             out.writeBytes(headerBytes);
