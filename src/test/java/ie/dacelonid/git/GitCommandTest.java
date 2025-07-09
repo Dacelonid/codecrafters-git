@@ -90,6 +90,17 @@ public class GitCommandTest {
         assertEquals(expectedType, outputStreamCaptor.toString().trim());
     }
 
+//    @Test
+//    public void catFileShortenedNameExpectedContents() throws Exception {
+//        String sha1 = "282b3544f154ec2ef0192a3bfad9614f7d8ab665";
+//        String expectedType = "blob";
+//
+//        objUnderTest.handleCommand(new String[]{"cat-file", "-t", "282b"}, tempDir.toPath());
+//
+//        assertTrue(tempDir.toPath().resolve(".git/objects/" + sha1.substring(0, 2) + "/" + sha1.substring(2)).toFile().exists());
+//        assertEquals(expectedType, outputStreamCaptor.toString().trim());
+//    }
+
     @Test
     public void catFileShowSizeGetExpectedContents() throws Exception {
         String sha1 = "282b3544f154ec2ef0192a3bfad9614f7d8ab665";

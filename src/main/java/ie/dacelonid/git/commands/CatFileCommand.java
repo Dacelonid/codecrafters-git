@@ -1,7 +1,7 @@
 package ie.dacelonid.git.commands;
 
 import java.io.File;
-import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 
 import static ie.dacelonid.git.plumbing.BlobUtils.*;
 
@@ -9,7 +9,7 @@ public enum CatFileCommand {
     PRINT("-p") {
         @Override
         public void handle(String objectId, File gitRootDirectory) throws Exception {
-            String type = getTypeFromSha1(objectId, gitRootDirectory);
+            String type = getTypeFromSha1Hash(objectId, gitRootDirectory);
             if("blob".equals(type)) {
                 printBlob(objectId, gitRootDirectory);
             }else
@@ -28,16 +28,15 @@ public enum CatFileCommand {
     TYPE("-t") {
         @Override
         public void handle(String objectId, File gitRootDirectory) throws Exception {
-            String type = getTypeFromSha1(objectId, gitRootDirectory);
+            String type = getTypeFromSha1Hash(objectId, gitRootDirectory);
             System.out.println(type);
         }
 
     }, SIZE("-s"){
         @Override
         public void handle(String objectId, File gitRootDirectory) throws Exception {
-            String contents = new String(getBlobContents(objectId, gitRootDirectory), StandardCharsets.UTF_8);
-            String type = contents.split("\0")[0].split(" ")[1];
-            System.out.println(type);
+            String size = getSizeFromSha1Hash(objectId, gitRootDirectory);
+            System.out.println(size);
         }
     };
 

@@ -1,7 +1,6 @@
 package ie.dacelonid.git.plumbing;
 
 import ie.dacelonid.git.ZlibHandler;
-import ie.dacelonid.git.exceptions.GitExceptions;
 import ie.dacelonid.git.utils.FileUtilities;
 import ie.dacelonid.git.utils.GitTreeParser;
 import ie.dacelonid.git.utils.TreeEntry;
@@ -11,9 +10,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 
-import static ie.dacelonid.git.utils.HexUtilities.computeSha1;
 import static ie.dacelonid.git.utils.FileUtilities.getFileContentsToWriteToBlob;
+import static ie.dacelonid.git.utils.HexUtilities.computeSha1;
 
 public class BlobUtils {
 
@@ -25,8 +25,12 @@ public class BlobUtils {
     }
 
     public static void printBlob(String objectId, File gitRootDirectory) throws Exception {
-        String contents = new String(getBlobContents(objectId, gitRootDirectory), StandardCharsets.UTF_8);
+        String contents = getFileContents(objectId, gitRootDirectory);
         System.out.print(contents.substring(contents.indexOf("\0") + 1));
+    }
+
+    private static String getFileContents(String objectId, File gitRootDirectory) throws Exception {
+        return new String(getBlobContents(objectId, gitRootDirectory), StandardCharsets.UTF_8);
     }
 
     public static void printTree(String objectId, File gitRootDirectory) throws Exception {
@@ -57,8 +61,15 @@ public class BlobUtils {
         return GitTreeParser.parseTree(getBlobContents(sha1, gitRootDir));
     }
 
-    public static String getTypeFromSha1(String objectId, File gitRootDirectory) throws Exception {
-        String contents = new String(getBlobContents(objectId, gitRootDirectory), StandardCharsets.UTF_8);
+    public static String getTypeFromSha1Hash(String objectId, File gitRootDirectory) throws Exception {
+        String contents = getFileContents(objectId, gitRootDirectory);
         return contents.split("\0")[0].split(" ")[0];
     }
+
+    public static String getSizeFromSha1Hash(String objectId, File gitRootDirectory) throws Exception {
+        String contents = getFileContents(objectId, gitRootDirectory);
+        return contents.split("\0")[0].split(" ")[1];
+    }
+
+
 }
