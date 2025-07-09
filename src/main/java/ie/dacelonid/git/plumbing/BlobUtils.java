@@ -10,7 +10,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Optional;
+import java.util.Objects;
 
 import static ie.dacelonid.git.utils.FileUtilities.getFileContentsToWriteToBlob;
 import static ie.dacelonid.git.utils.HexUtilities.computeSha1;
@@ -47,7 +47,15 @@ public class BlobUtils {
     public static File getFileFromSha1Hash(File gitRootDirectory, String sha1) {
         String dir = sha1.substring(0, 2); //Directory is first 2 characters of SHA1
         String fileName = sha1.substring(2); //Filename is the remaining SHA1
-        return new File(gitRootDirectory, "objects/" + dir + "/" + fileName);
+
+        if (new File(gitRootDirectory, "objects/" + dir).exists()) {
+            for (File file : Objects.requireNonNull(new File(gitRootDirectory, "objects/" + dir).listFiles())) {
+                if (file.getName().startsWith(fileName)) {
+                    return file;
+                }
+            }
+        }
+        return new File(gitRootDirectory, "objects/" + dir + "/" + fileName); //doesn't exist not very good handling
     }
 
     public static String writeBlob(String fileName, File gitRootDir, Path currentDirectory) throws Exception {
