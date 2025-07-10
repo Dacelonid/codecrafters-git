@@ -12,17 +12,16 @@ import ie.dacelonid.git.plumbing.objects.TreeObject;
 import ie.dacelonid.git.plumbing.objects.BlobObject;
 import ie.dacelonid.git.plumbing.objects.GitObject;
 
-import static ie.dacelonid.git.plumbing.BlobUtils.writeBlob;
-import static ie.dacelonid.git.utils.HexUtilities.bytesToHex;
-import static ie.dacelonid.git.utils.HexUtilities.computeSha1;
+import static ie.dacelonid.git.plumbing.objects.BlobObject.writeBlob;
 import static ie.dacelonid.git.utils.FileUtilities.writeObject;
+import static ie.dacelonid.git.utils.HexUtilities.*;
 
 
 public class TreeUtilities {
 
     public static String writeTree(File gitDirectory, File dirOrFile) throws Exception {
         List<GitObject> objects = getAllFilesAndDirs(gitDirectory, dirOrFile);
-        return bytesToHex(objects.getFirst().getSha1());
+        return objects.getFirst().getSha1();
     }
 
     private static List<GitObject> getAllFilesAndDirs(File gitDirectory, File dirOrFile) throws Exception {
@@ -34,11 +33,11 @@ public class TreeUtilities {
                     objects.addAll(getAllFilesAndDirs(gitDirectory, child));
                 }
                 String sha1 = writeTree(gitDirectory, objects);
-                return List.of(new TreeObject("040000", dirOrFile.getName(), HexUtilities.hexToBytes(sha1)));
+                return List.of(GitObject.from("040000", dirOrFile.getName(), hexToBytes(sha1)));
             }
         } else {
             String sha1 = writeBlob(dirOrFile.getName(), gitDirectory, dirOrFile.toPath().getParent());
-            objects.add(new BlobObject("100644", dirOrFile.getName(), HexUtilities.hexToBytes(sha1)));
+            objects.add(GitObject.from("100644", dirOrFile.getName(), hexToBytes(sha1)));
         }
 
         return objects;

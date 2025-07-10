@@ -5,16 +5,18 @@ import ie.dacelonid.git.plumbing.objects.GitObject;
 import java.io.File;
 
 import static ie.dacelonid.git.plumbing.BlobUtils.*;
+import static ie.dacelonid.git.plumbing.objects.GitObject.getTypeFromSha1Hash;
 
 public enum CatFileCommand {
     PRINT("-p") {
         @Override
-        public void handle(String objectId, File gitRootDirectory) throws Exception {
-            String type = getTypeFromSha1Hash(objectId, gitRootDirectory);
+        public void handle(String sha1, File gitRootDirectory) throws Exception {
+            String type = getTypeFromSha1Hash(sha1, gitRootDirectory);
+
             if("blob".equals(type)) {
-                printBlob(objectId, gitRootDirectory);
+                printBlob(sha1, gitRootDirectory);
             }else
-                printTree(objectId, gitRootDirectory);
+                printTree(sha1, gitRootDirectory);
         }
     },
     EXISTS("-e") {
@@ -36,7 +38,7 @@ public enum CatFileCommand {
     }, SIZE("-s"){
         @Override
         public void handle(String objectId, File gitRootDirectory) throws Exception {
-            String size = getSizeFromSha1Hash(objectId, gitRootDirectory);
+            String size = GitObject.getSizeFromSha1Hash(objectId, gitRootDirectory);
             System.out.println(size);
         }
     };

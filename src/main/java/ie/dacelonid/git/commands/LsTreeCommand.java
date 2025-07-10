@@ -5,21 +5,21 @@ import ie.dacelonid.git.plumbing.objects.GitObject;
 import java.io.File;
 import java.util.List;
 
-import static ie.dacelonid.git.plumbing.BlobUtils.listTree;
+import static ie.dacelonid.git.plumbing.BlobUtils.parseTree;
 import static ie.dacelonid.git.utils.HexUtilities.bytesToHex;
 
 public enum LsTreeCommand {
     NAME_ONLY("--name-only") {
         @Override
         public void handle(String objectId, File gitRootDirectory) throws Exception {
-            List<GitObject> treeEntries = listTree(objectId, gitRootDirectory);
+            List<GitObject> treeEntries = parseTree(objectId, gitRootDirectory);
             treeEntries.forEach(treeEntry -> System.out.println(treeEntry.getName()));
         }
     },
     TREES("-d") {
         @Override
         public void handle(String objectId, File gitRootDirectory) throws Exception {
-            List<GitObject> treeEntries = listTree(objectId, gitRootDirectory);
+            List<GitObject> treeEntries = parseTree(objectId, gitRootDirectory);
             treeEntries.stream()
                     .filter(t -> "tree".equals(t.getType()))
                     .map(GitObject::getName)
@@ -30,12 +30,12 @@ public enum LsTreeCommand {
     RECURSE("-r") {
         @Override
         public void handle(String objectId, File gitRootDirectory) throws Exception {
-            List<GitObject> treeEntries = listTree(objectId, gitRootDirectory); //geteverything on the root dir
+            List<GitObject> treeEntries = parseTree(objectId, gitRootDirectory); //geteverything on the root dir
             for (GitObject objects : treeEntries) {
                 System.out.println(objects.getName());
                 if ("040000".equals(objects.getMode())) {
                     try {
-                        handle(bytesToHex(objects.getSha1()), gitRootDirectory);
+                        handle(objects.getSha1(), gitRootDirectory);
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }

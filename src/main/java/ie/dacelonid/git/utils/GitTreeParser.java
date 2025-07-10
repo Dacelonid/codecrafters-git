@@ -30,8 +30,7 @@ public class GitTreeParser {
             byte[] sha = new byte[20];
             System.arraycopy(data, i, sha, 0, 20);
             i += 20;
-
-            entries.add(new GitObject.GitObjectBuilder().mode(mode).name(name).sha1(sha).build());
+            entries.add(GitObject.from(mode, name, sha));
         }
         return entries;
     }

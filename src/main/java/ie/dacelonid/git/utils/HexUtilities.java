@@ -28,6 +28,7 @@ public class HexUtilities {
         return bytesToHex(digest);
     }
 
+
     public static byte[] hexToBytes(String hex) {
         int len = hex.length();
         byte[] data = new byte[len / 2];

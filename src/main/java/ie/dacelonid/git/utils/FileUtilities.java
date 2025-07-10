@@ -8,7 +8,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.zip.DeflaterOutputStream;
 
 import static ie.dacelonid.git.plumbing.objects.GitObject.getFileFromSha1Hash;
@@ -22,11 +21,6 @@ public class FileUtilities {
 
     public static byte[] getUncompressedFileContents(File objectFile) throws Exception {
         return ZlibHandler.decompress(Files.readAllBytes(objectFile.toPath()));
-    }
-
-    public static String getFileContentsToWriteToBlob(String filename, Path currentDirectory) throws IOException {
-        String contents = Files.readString(new File(currentDirectory.toFile(), filename).toPath());
-        return "blob " + contents.length() + "\0" + contents;
     }
 
     public static void writeObject(File gitDir, String sha1, byte[] data) throws IOException, GitCouldNotCreateDirectoryException {
