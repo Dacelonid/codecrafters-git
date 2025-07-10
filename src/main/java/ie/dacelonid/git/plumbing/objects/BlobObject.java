@@ -17,6 +17,12 @@ public class BlobObject extends GitObject {
         this.sha1 = sha1;
     }
 
+    public BlobObject(String mode, String name) {
+        this.type = "blob";
+        this.mode = mode;
+        this.name = name;
+    }
+
     public String writeNewBlob(String fileName, File gitRootDir, Path currentDirectory) throws Exception {
         String contentToWrite = getFileContentsToWriteToBlob(fileName, currentDirectory);
         sha1 = computeSha1(contentToWrite);

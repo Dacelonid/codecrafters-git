@@ -36,23 +36,23 @@ public class TreeUtilities {
                 return List.of(GitObject.from("040000", dirOrFile.getName(), hexToBytes(sha1)));
             }
         } else {
-            BlobObject gitObject = new BlobObject("100644", dirOrFile.getName(), "");
-            String sha1 = gitObject.writeNewBlob(dirOrFile.getName(), gitDirectory, dirOrFile.toPath().getParent());
-            objects.add(GitObject.from("100644", dirOrFile.getName(), hexToBytes(sha1)));
+            BlobObject gitObject = new BlobObject("100644", dirOrFile.getName());
+            gitObject.writeNewBlob(dirOrFile.getName(), gitDirectory, dirOrFile.toPath().getParent());
+            objects.add(gitObject);
         }
 
         return objects;
     }
 
     private static String writeTree(File gitDirectory, List<GitObject> objects) throws Exception {
-        byte[] content = serializeTree(objects);
+        byte[] content = convertTreeToBytes(objects);
         byte[] fullData = prependHeader(content);
         String sha1 = computeSha1(fullData);
         writeObject(gitDirectory, sha1, fullData);
         return sha1;
     }
 
-    private static byte[] serializeTree(List<GitObject> objects) {
+    private static byte[] convertTreeToBytes(List<GitObject> objects) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         objects.sort(Comparator.comparing(GitObject::getName));
         for (GitObject obj : objects) {
