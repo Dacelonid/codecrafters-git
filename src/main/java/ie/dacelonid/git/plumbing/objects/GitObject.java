@@ -3,6 +3,7 @@ package ie.dacelonid.git.plumbing.objects;
 import ie.dacelonid.git.utils.HexUtilities;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 public abstract class GitObject {
@@ -45,6 +46,24 @@ public abstract class GitObject {
     @Override
     public String toString() {
         return mode + " " + type + " " + HexUtilities.bytesToHex(sha1) + " " + name;
+    }
+
+    public byte[] toBytes() {
+        byte[] modeBytes = mode.getBytes(StandardCharsets.UTF_8);
+        byte[] nameBytes = name.getBytes(StandardCharsets.UTF_8);
+        byte[] result = new byte[modeBytes.length + 1 + nameBytes.length + 1 + sha1.length];
+
+        int pos = 0;
+        System.arraycopy(modeBytes, 0, result, pos, modeBytes.length);
+        pos += modeBytes.length;
+        result[pos++] = ' ';
+        System.arraycopy(nameBytes, 0, result, pos, nameBytes.length);
+        pos += nameBytes.length;
+        result[pos++] = 0;
+        System.arraycopy(sha1, 0, result, pos, sha1.length);
+
+        return result;
+
     }
 
     public static class GitObjectBuilder {
