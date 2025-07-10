@@ -1,5 +1,8 @@
 package ie.dacelonid.git.utils;
 
+import ie.dacelonid.git.plumbing.objects.BlobObject;
+import ie.dacelonid.git.plumbing.objects.GitObject;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -8,13 +11,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import ie.dacelonid.git.plumbing.objects.TreeObject;
-import ie.dacelonid.git.plumbing.objects.BlobObject;
-import ie.dacelonid.git.plumbing.objects.GitObject;
 
-import static ie.dacelonid.git.plumbing.objects.BlobObject.writeBlob;
 import static ie.dacelonid.git.utils.FileUtilities.writeObject;
-import static ie.dacelonid.git.utils.HexUtilities.*;
+import static ie.dacelonid.git.utils.HexUtilities.computeSha1;
+import static ie.dacelonid.git.utils.HexUtilities.hexToBytes;
 
 
 public class TreeUtilities {
@@ -36,7 +36,8 @@ public class TreeUtilities {
                 return List.of(GitObject.from("040000", dirOrFile.getName(), hexToBytes(sha1)));
             }
         } else {
-            String sha1 = writeBlob(dirOrFile.getName(), gitDirectory, dirOrFile.toPath().getParent());
+            BlobObject gitObject = new BlobObject("100644", dirOrFile.getName(), "");
+            String sha1 = gitObject.writeNewBlob(dirOrFile.getName(), gitDirectory, dirOrFile.toPath().getParent());
             objects.add(GitObject.from("100644", dirOrFile.getName(), hexToBytes(sha1)));
         }
 

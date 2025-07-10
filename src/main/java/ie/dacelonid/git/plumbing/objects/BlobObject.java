@@ -25,22 +25,14 @@ public class BlobObject extends GitObject {
         return sha1;
     }
 
-    public static String writeBlob(String fileName, File gitRootDir, Path currentDirectory) throws Exception {
-        String contentToWrite = getFileContentsToWriteToBlob(fileName, currentDirectory);
-        String sha1 = computeSha1(contentToWrite);
-        File blobFile = createFileToWriteTo(gitRootDir, sha1);
-        Files.write(blobFile.toPath(), ZlibHandler.compress(contentToWrite.getBytes()));
-        return sha1;
-    }
-
-    private static File createFileToWriteTo(File gitRootDirectory, String sha1) throws Exception {
+    private File createFileToWriteTo(File gitRootDirectory, String sha1) throws Exception {
         final File blob_dir = new File(gitRootDirectory, "objects/" + sha1.substring(0, 2));
         blob_dir.mkdirs();
         return new File(blob_dir, sha1.substring(2));
 
     }
 
-    private static String getFileContentsToWriteToBlob(String filename, Path currentDirectory) throws IOException {
+    private String getFileContentsToWriteToBlob(String filename, Path currentDirectory) throws IOException {
         String contents = Files.readString(new File(currentDirectory.toFile(), filename).toPath());
         return "blob " + contents.length() + "\0" + contents;
     }
