@@ -1,6 +1,7 @@
 package ie.dacelonid.git.plumbing;
 
 import ie.dacelonid.git.ZlibHandler;
+import ie.dacelonid.git.plumbing.objects.GitObject;
 import ie.dacelonid.git.utils.FileUtilities;
 import ie.dacelonid.git.utils.GitTreeParser;
 

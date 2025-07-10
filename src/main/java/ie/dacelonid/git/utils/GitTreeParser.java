@@ -1,6 +1,6 @@
 package ie.dacelonid.git.utils;
 
-import ie.dacelonid.git.plumbing.GitObject;
+import ie.dacelonid.git.plumbing.objects.GitObject;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;

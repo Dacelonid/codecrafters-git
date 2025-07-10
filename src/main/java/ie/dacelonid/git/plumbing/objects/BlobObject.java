@@ -1,4 +1,4 @@
-package ie.dacelonid.git.plumbing;
+package ie.dacelonid.git.plumbing.objects;
 
 public class BlobObject extends GitObject {
     public BlobObject(String mode, String name, byte[] sha1) {

@@ -1,4 +1,4 @@
-package ie.dacelonid.git.plumbing;
+package ie.dacelonid.git.plumbing.objects;
 
 import ie.dacelonid.git.utils.HexUtilities;
 
@@ -6,10 +6,10 @@ import java.io.File;
 import java.util.Objects;
 
 public abstract class GitObject {
-    String mode;
-    String type;
-    byte[] sha1;
-    String name;
+    protected String mode;
+    protected String type;
+    protected byte[] sha1;
+    protected String name;
 
     public static File getFileFromSha1Hash(File gitRootDirectory, String sha1) {
         String dir = sha1.substring(0, 2); //Directory is first 2 characters of SHA1

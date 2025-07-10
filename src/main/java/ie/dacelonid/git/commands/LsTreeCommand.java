@@ -1,6 +1,6 @@
 package ie.dacelonid.git.commands;
 
-import ie.dacelonid.git.plumbing.GitObject;
+import ie.dacelonid.git.plumbing.objects.GitObject;
 
 import java.io.File;
 import java.util.List;
