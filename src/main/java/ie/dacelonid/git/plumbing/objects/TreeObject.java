@@ -33,7 +33,8 @@ public class TreeObject extends GitObject {
      */
     public String write(File gitDirectory, File directory) throws Exception {
         buildTree(gitDirectory, directory);
-        return writeTree(gitDirectory);
+        writeTree(gitDirectory);
+        return sha1;
     }
 
     private void buildTree(File gitDirectory, File currentDir) throws Exception {
@@ -54,12 +55,11 @@ public class TreeObject extends GitObject {
         }
     }
 
-    private String writeTree(File gitDirectory) throws Exception {
+    private void writeTree(File gitDirectory) throws Exception {
         byte[] content = convertTreeToBytes();
         byte[] fullData = prependHeader(content);
         this.sha1 = computeSha1(fullData);
         writeObject(gitDirectory, sha1, fullData);
-        return sha1;
     }
 
     private byte[] convertTreeToBytes() {

@@ -6,8 +6,6 @@ import ie.dacelonid.git.utils.GitTreeParser;
 import java.io.File;
 import java.util.List;
 
-import static ie.dacelonid.git.utils.HexUtilities.computeSha1;
-
 public class BlobUtils {
 
     public static void printBlob(String sha1, File gitRootDirectory) throws Exception {
