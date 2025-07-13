@@ -18,7 +18,7 @@ public class CommitObject extends GitObject{
     private final String parentSha1 = "";
 
     private String sha1;
-    private long time;
+    private final long time;
     private final String commitMsg;
     private final String parentSha;
 
@@ -94,12 +94,5 @@ public class CommitObject extends GitObject{
         }
 
         return out.toByteArray();
-    }
-
-
-    private byte[] longToBytes(long value) {
-        ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES); // 8 bytes
-        buffer.putLong(value);
-        return buffer.array();
     }
 }

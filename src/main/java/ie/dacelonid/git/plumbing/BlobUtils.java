@@ -13,6 +13,11 @@ public class BlobUtils {
         System.out.print(contents.substring(contents.indexOf("\0") + 1));
     }
 
+    public static void printCommit(String sha1, File gitRootDirectory) throws Exception {
+        String contents = GitObject.getFileContents(sha1, gitRootDirectory);
+        System.out.print(contents.substring(contents.indexOf("\0") + 1));
+    }
+
     public static void printTree(String objectId, File gitRootDirectory) throws Exception {
         byte[] full = GitObject.getBlobContents(objectId, gitRootDirectory);
         List<GitObject> treeEntries = GitTreeParser.parseTree(full);

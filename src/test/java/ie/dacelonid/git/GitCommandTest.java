@@ -200,11 +200,42 @@ public class GitCommandTest {
 
         //1. call commit-tree command with the sha1 from above as the tree
         objUnderTest.handleCommand(new String[]{"commit-tree", treeSha, "-m", "initial commit"}, tempDir.toPath());
+
         //2. verify sha1 and store it
+        String commitSha =  outputStreamCaptor.toString().split("\\R")[0];
+        outputStreamCaptor.reset();
+        objUnderTest.handleCommand(new String[]{"cat-file", "-p", commitSha}, tempDir.toPath());
+        String[] output =  outputStreamCaptor.toString().split("\\R");
+        assertEquals("tree 1ea9540ce1ede682cfb8b14801ed2f001b5f2e6f", output[0]);
+        assertTrue(output[1].startsWith("author Ken <ken@codecrafters.com>")); //best I can do until I create an Object to hold the Commit correctly
+        assertTrue(output[2].startsWith("committer Ken <ken@codecrafters.com>"));//best I can do until I create an Object to hold the Commit correctly
+        assertEquals("", output[3]); //intentional blank line
+        assertEquals("initial commit", output[4]); // commit message
+
+        outputStreamCaptor.reset();
         //3. add some files
+        Files.write(new File(tempDir, "test33").toPath(), "hello World 15".getBytes());
+
         //4. call write tree and get the sha1
+        objUnderTest.handleCommand(new String[]{"write-tree"}, tempDir.toPath());
+        output =  outputStreamCaptor.toString().split("\\R");
+        String newTreeSha = output[0];
+        outputStreamCaptor.reset();
         //5. call commit-tree with the sha1 from step 4 as the tree and the sha1 from 2 as the parent
+        objUnderTest.handleCommand(new String[]{"commit-tree", newTreeSha, "-p", commitSha, "-m", "second commit"}, tempDir.toPath());
+
+
         //6. verify sha1
+        String newCommitSha =  outputStreamCaptor.toString().split("\\R")[0];
+        outputStreamCaptor.reset();
+        objUnderTest.handleCommand(new String[]{"cat-file", "-p", newCommitSha}, tempDir.toPath());
+        output =  outputStreamCaptor.toString().split("\\R");
+        assertEquals("tree 1e13aea35800d5baf5a1f37ba56e03911f7b0f50", output[0]);
+        assertEquals("parent " + commitSha, output[1]);
+        assertTrue(output[2].startsWith("author Ken <ken@codecrafters.com>")); //best I can do until I create an Object to hold the Commit correctly
+        assertTrue(output[3].startsWith("committer Ken <ken@codecrafters.com>"));//best I can do until I create an Object to hold the Commit correctly
+        assertEquals("", output[4]); //intentional blank line
+        assertEquals("second commit", output[5]); // commit message
     }
 
     private static String createFilesForTestRepo(File tempDir) throws IOException {

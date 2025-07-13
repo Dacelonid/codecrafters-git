@@ -15,6 +15,8 @@ public enum CatFileCommand {
 
             if("blob".equals(type)) {
                 printBlob(sha1, gitRootDirectory);
+            }else if("commit".equals(type)){
+                printCommit(sha1, gitRootDirectory);
             }else
                 printTree(sha1, gitRootDirectory);
         }

@@ -15,6 +15,7 @@ import static ie.dacelonid.git.plumbing.objects.GitObject.getFileFromSha1Hash;
 public class FileUtilities {
 
     public static void createDirectory(File dir) throws GitCouldNotCreateDirectoryException {
+        if(dir.exists())return;
         if (!dir.mkdirs())
             throw new GitCouldNotCreateDirectoryException(dir);
     }

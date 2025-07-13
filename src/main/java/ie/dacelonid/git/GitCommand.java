@@ -75,8 +75,6 @@ public class GitCommand {
     private void writeTreeToDisk(File gitRootDirectory, Path currentDirectory) throws Exception {
         TreeObject obj = new TreeObject(currentDirectory.toFile().getName());
         String sha1 = obj.write(gitRootDirectory, currentDirectory.toFile());
-//        String sha1 = writeTree(gitRootDirectory, currentDirectory.toFile());
-
         System.out.println(sha1);
     }
 
