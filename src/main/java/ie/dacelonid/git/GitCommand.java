@@ -6,12 +6,12 @@ import ie.dacelonid.git.commands.LsTreeCommand;
 import ie.dacelonid.git.exceptions.GitCouldNotCreateDirectoryException;
 import ie.dacelonid.git.exceptions.GitExceptions;
 import ie.dacelonid.git.exceptions.GitRepoAlreadyExists;
+import ie.dacelonid.git.plumbing.objects.TreeObject;
 
 import java.io.File;
 import java.nio.file.Path;
 
 import static ie.dacelonid.git.plumbing.RepoUtils.*;
-import static ie.dacelonid.git.utils.TreeUtilities.writeTree;
 
 public class GitCommand {
 
@@ -36,7 +36,9 @@ public class GitCommand {
     }
 
     private void writeTreeToDisk(File gitRootDirectory, Path currentDirectory) throws Exception {
-        String sha1 = writeTree(gitRootDirectory, currentDirectory.toFile());
+        TreeObject obj = new TreeObject(currentDirectory.toFile().getName());
+        String sha1 = obj.write(gitRootDirectory, currentDirectory.toFile());
+//        String sha1 = writeTree(gitRootDirectory, currentDirectory.toFile());
 
         System.out.println(sha1);
     }
