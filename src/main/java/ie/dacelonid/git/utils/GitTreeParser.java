@@ -19,7 +19,7 @@ public class GitTreeParser {
             int modeStart = i;
             while (data[i] != ' ') i++;
             String mode = new String(data, modeStart, i - modeStart, StandardCharsets.UTF_8);
-            if ("40000".equals(mode)) mode = "040000";
+//            if ("40000".equals(mode)) mode = "040000";
             i++; // skip space
 
             int nameStart = i;

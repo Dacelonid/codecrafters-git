@@ -33,7 +33,7 @@ public enum LsTreeCommand {
             List<GitObject> treeEntries = parseTree(objectId, gitRootDirectory); //geteverything on the root dir
             for (GitObject objects : treeEntries) {
                 System.out.println(objects.getName());
-                if ("040000".equals(objects.getMode())) {
+                if ("40000".equals(objects.getMode())) {
                     try {
                         handle(objects.getSha1(), gitRootDirectory);
                     } catch (Exception e) {

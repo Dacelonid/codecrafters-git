@@ -6,6 +6,7 @@ import ie.dacelonid.git.commands.LsTreeCommand;
 import ie.dacelonid.git.exceptions.GitCouldNotCreateDirectoryException;
 import ie.dacelonid.git.exceptions.GitExceptions;
 import ie.dacelonid.git.exceptions.GitRepoAlreadyExists;
+import ie.dacelonid.git.plumbing.objects.CommitObject;
 import ie.dacelonid.git.plumbing.objects.TreeObject;
 
 import java.io.File;
@@ -25,6 +26,7 @@ public class GitCommand {
                 case "hash-object" -> HashObjectCommand.handle(getCommandTarget(args), gitRootDirectory, currentDirectory);
                 case "ls-tree" -> LsTreeCommand.fromOption(getCommandOptions(args)).handle(getCommandTarget(args), gitRootDirectory);
                 case "write-tree" -> writeTreeToDisk(gitRootDirectory, currentDirectory);
+                case "commit-tree" -> writeCommitToDisk(gitRootDirectory, args);
                 default -> System.out.println("Unknown command: " + command);
             }
         } catch (GitCouldNotCreateDirectoryException e) {
@@ -33,6 +35,41 @@ public class GitCommand {
             System.out.println(e.getMessage());
         }
 
+    }
+
+    private void writeCommitToDisk(File gitRootDirectory, String[] args) throws Exception {
+        String name = "Ken";
+        String email = "ken@codecrafters.com";
+        String treeSha1 = findSha1(args);
+        String commitMsg = findCommitMsg(args);
+        String parentSha = findParentSha(args);
+        long time = System.nanoTime();
+        CommitObject obj = new CommitObject(name, email, treeSha1, time, commitMsg, parentSha);
+        obj.write(gitRootDirectory);
+        System.out.println(obj.getSha1());
+    }
+
+    private String findCommitMsg(String[] args) {
+        for(int x = 0;x< args.length;x++){
+            if("-m".equals(args[x]))
+                return args[x+1];
+        }
+        return "";
+    }
+    private String findParentSha(String[] args) {
+        for(int x = 0;x< args.length;x++){
+            if("-p".equals(args[x]))
+                return args[x+1];
+        }
+        return null;
+    }
+
+    private String findSha1(String[] args) throws GitExceptions {
+        for(int x = 0;x< args.length;x++){
+            if(args[x].length() == 40)
+                return args[x];
+        }
+        throw new GitExceptions();
     }
 
     private void writeTreeToDisk(File gitRootDirectory, Path currentDirectory) throws Exception {

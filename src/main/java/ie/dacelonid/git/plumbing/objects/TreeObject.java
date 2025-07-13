@@ -24,7 +24,7 @@ public class TreeObject extends GitObject {
 
     public TreeObject(String name) {
         this.type = "tree";
-        this.mode = "040000";
+        this.mode = "40000";
         this.name = name;
     }
 
@@ -40,8 +40,10 @@ public class TreeObject extends GitObject {
     private void buildTree(File gitDirectory, File currentDir) throws Exception {
         File[] children = currentDir.listFiles();
         if (children == null) return;
-
         for (File child : children) {
+            if(".git".equals(child.getName())){
+                continue;
+            }
             if (child.isDirectory()) {
                 TreeObject subTree = new TreeObject(child.getName());
                 subTree.buildTree(gitDirectory, child);

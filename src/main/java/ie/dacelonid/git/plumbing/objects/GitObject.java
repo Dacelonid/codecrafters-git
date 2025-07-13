@@ -91,7 +91,7 @@ public abstract class GitObject {
     }
 
     public static GitObject from(String mode, String name, byte[] sha) {
-        return "040000".equals(mode)
+        return "40000".equals(mode)
                 ? new TreeObject(mode, name, bytesToHex(sha))
                 : new BlobObject(mode, name, bytesToHex(sha));
     }
