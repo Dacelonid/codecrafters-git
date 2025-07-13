@@ -65,9 +65,9 @@ public class GitCommand {
     }
 
     private String findSha1(String[] args) throws GitExceptions {
-        for(int x = 0;x< args.length;x++){
-            if(args[x].length() == 40)
-                return args[x];
+        for (String arg : args) { //TODO need to ensure that this is the tree SHA and not the parent sha
+            if (arg.length() == 40)
+                return arg;
         }
         throw new GitExceptions();
     }

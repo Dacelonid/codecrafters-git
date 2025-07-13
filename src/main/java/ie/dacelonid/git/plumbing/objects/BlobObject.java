@@ -31,7 +31,7 @@ public class BlobObject extends GitObject {
         return sha1;
     }
 
-    private File createFileToWriteTo(File gitRootDirectory, String sha1) throws Exception {
+    private File createFileToWriteTo(File gitRootDirectory, String sha1)  {
         final File blob_dir = new File(gitRootDirectory, "objects/" + sha1.substring(0, 2));
         blob_dir.mkdirs();
         return new File(blob_dir, sha1.substring(2));

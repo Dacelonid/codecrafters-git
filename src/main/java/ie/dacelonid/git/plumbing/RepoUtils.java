@@ -30,7 +30,7 @@ public class RepoUtils {
         }
     }
 
-    public static File getGitRootDirectory(Path currentDirectory) throws GitRepoNotInitialized {
+    public static File getGitRootDirectory(Path currentDirectory) {
         return new File(currentDirectory.toFile(), ".git");
     }
 }

@@ -1,8 +1,6 @@
 package ie.dacelonid.git.plumbing.objects;
 
-import ie.dacelonid.git.plumbing.BlobUtils;
 import ie.dacelonid.git.utils.FileUtilities;
-import ie.dacelonid.git.utils.HexUtilities;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;

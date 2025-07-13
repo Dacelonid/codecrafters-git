@@ -23,7 +23,7 @@ public enum CatFileCommand {
     },
     EXISTS("-e") {
         @Override
-        public void handle(String objectId, File gitRootDirectory) throws Exception {
+        public void handle(String objectId, File gitRootDirectory) {
             File objectFile = GitObject.getFileFromSha1Hash(gitRootDirectory, objectId);
             if(!objectFile.exists()){
                 System.out.println("fatal: Not a valid object name " + objectId);

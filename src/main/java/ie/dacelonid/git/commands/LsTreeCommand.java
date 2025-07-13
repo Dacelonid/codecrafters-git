@@ -6,7 +6,6 @@ import java.io.File;
 import java.util.List;
 
 import static ie.dacelonid.git.plumbing.BlobUtils.parseTree;
-import static ie.dacelonid.git.utils.HexUtilities.bytesToHex;
 
 public enum LsTreeCommand {
     NAME_ONLY("--name-only") {

@@ -4,18 +4,15 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
 import static ie.dacelonid.git.utils.FileUtilities.writeObject;
 import static ie.dacelonid.git.utils.HexUtilities.computeSha1;
-import static ie.dacelonid.git.utils.HexUtilities.hexToBytes;
 
 public class CommitObject extends GitObject{
     private final String name;
     private final String email;
     private final String treeSha1;
-    private final String parentSha1 = "";
 
     private String sha1;
     private final long time;
