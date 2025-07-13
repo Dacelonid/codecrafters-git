@@ -11,10 +11,10 @@ import java.util.List;
 
 import static ie.dacelonid.git.utils.FileUtilities.writeObject;
 import static ie.dacelonid.git.utils.HexUtilities.computeSha1;
-import static ie.dacelonid.git.utils.HexUtilities.hexToBytes;
 
 public class TreeObject extends GitObject {
-    private List<GitObject> directoryContents = new ArrayList<>();
+    private final List<GitObject> directoryContents = new ArrayList<>();
+
     public TreeObject(String mode, String name, String sha1) {
         this.type = "tree";
         this.mode = mode;
@@ -28,43 +28,44 @@ public class TreeObject extends GitObject {
         this.name = name;
     }
 
-    public String write(File gitDirectory, File name) throws Exception {
-        directoryContents.addAll(getAllFilesAndDirs(gitDirectory, name));
-        return directoryContents.getFirst().getSha1();
+    /**
+     * Recursively builds the object hierarchy and writes all GitObjects to the object store.
+     */
+    public String write(File gitDirectory, File directory) throws Exception {
+        buildTree(gitDirectory, directory);
+        return writeTree(gitDirectory);
     }
 
-    private List<GitObject> getAllFilesAndDirs(File gitDirectory, File dirOrFile) throws Exception {
-        List<GitObject> objects = new ArrayList<>();
-        if (dirOrFile.isDirectory()) {
-            File[] children = dirOrFile.listFiles();
-            if (children != null && !dirOrFile.equals(gitDirectory)) {
-                for (File child : children) {
-                    objects.addAll(getAllFilesAndDirs(gitDirectory, child));
-                }
-                String sha1 = writeTree(gitDirectory, objects);
-                return List.of(GitObject.from("040000", dirOrFile.getName(), hexToBytes(sha1)));
+    private void buildTree(File gitDirectory, File currentDir) throws Exception {
+        File[] children = currentDir.listFiles();
+        if (children == null) return;
+
+        for (File child : children) {
+            if (child.isDirectory()) {
+                TreeObject subTree = new TreeObject(child.getName());
+                subTree.buildTree(gitDirectory, child);
+                subTree.writeTree(gitDirectory); // calculate sha1 of subtree and write it
+                directoryContents.add(subTree);
+            } else {
+                BlobObject blob = new BlobObject("100644", child.getName());
+                blob.writeNewBlob(child.getName(), gitDirectory, child.getParentFile().toPath());
+                directoryContents.add(blob);
             }
-        } else {
-            BlobObject gitObject = new BlobObject("100644", dirOrFile.getName());
-            gitObject.writeNewBlob(dirOrFile.getName(), gitDirectory, dirOrFile.toPath().getParent());
-            objects.add(gitObject);
         }
-
-        return objects;
     }
 
-    private String writeTree(File gitDirectory, List<GitObject> objects) throws Exception {
-        byte[] content = convertTreeToBytes(objects);
+    private String writeTree(File gitDirectory) throws Exception {
+        byte[] content = convertTreeToBytes();
         byte[] fullData = prependHeader(content);
-        String sha1 = computeSha1(fullData);
+        this.sha1 = computeSha1(fullData);
         writeObject(gitDirectory, sha1, fullData);
         return sha1;
     }
 
-    private byte[] convertTreeToBytes(List<GitObject> objects) {
+    private byte[] convertTreeToBytes() {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        objects.sort(Comparator.comparing(GitObject::getName));
-        for (GitObject obj : objects) {
+        directoryContents.sort(Comparator.comparing(GitObject::getName));
+        for (GitObject obj : directoryContents) {
             try {
                 out.write(obj.toBytes());
             } catch (IOException e) {
@@ -81,5 +82,9 @@ public class TreeObject extends GitObject {
         System.arraycopy(headerBytes, 0, full, 0, headerBytes.length);
         System.arraycopy(body, 0, full, headerBytes.length, body.length);
         return full;
+    }
+
+    public List<GitObject> getDirectoryContents() {
+        return directoryContents;
     }
 }

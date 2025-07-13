@@ -15,7 +15,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static ie.dacelonid.git.TestUtils.*;
+import static ie.dacelonid.git.TestUtils.copyGitObjectsFromResources;
+import static ie.dacelonid.git.TestUtils.readBlob;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("ResultOfMethodCallIgnored")
