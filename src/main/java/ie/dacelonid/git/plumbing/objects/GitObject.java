@@ -4,7 +4,10 @@ import ie.dacelonid.git.plumbing.BlobUtils;
 import ie.dacelonid.git.utils.FileUtilities;
 import ie.dacelonid.git.utils.HexUtilities;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
@@ -73,22 +76,28 @@ public abstract class GitObject {
     }
 
     public byte[] toBytes() {
-        byte[] modeBytes = mode.getBytes(StandardCharsets.UTF_8);
+        // Remove leading zero from mode if present
+        int modeInt = Integer.parseInt(mode, 8);  // parse as octal
+        String normalizedMode = Integer.toOctalString(modeInt);  // Git omits leading zeros, e.g. "40000"
+
+        byte[] modeBytes = normalizedMode.getBytes(StandardCharsets.UTF_8);
         byte[] nameBytes = name.getBytes(StandardCharsets.UTF_8);
-        byte[] sha1_bytes = hexToBytes(sha1);
-        byte[] result = new byte[modeBytes.length + 1 + nameBytes.length + 1 +sha1_bytes.length];
-        int pos = 0;
-        System.arraycopy(modeBytes, 0, result, pos, modeBytes.length);
-        pos += modeBytes.length;
-        result[pos++] = ' ';
-        System.arraycopy(nameBytes, 0, result, pos, nameBytes.length);
-        pos += nameBytes.length;
-        result[pos++] = 0;
-        System.arraycopy(sha1_bytes, 0, result, pos, sha1_bytes.length);
+        byte[] sha1Bytes = hexToBytes(sha1);
 
-        return result;
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try {
+            out.write(modeBytes);
+            out.write(' ');
+            out.write(nameBytes);
+            out.write(0);  // NULL byte
+            out.write(sha1Bytes);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e); // Should never happen with ByteArrayOutputStream
+        }
 
+        return out.toByteArray();
     }
+
 
     public static GitObject from(String mode, String name, byte[] sha) {
         return "40000".equals(mode)

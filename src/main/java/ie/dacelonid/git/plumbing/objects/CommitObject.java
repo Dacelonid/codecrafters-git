@@ -3,6 +3,7 @@ package ie.dacelonid.git.plumbing.objects;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
@@ -63,96 +64,38 @@ public class CommitObject extends GitObject{
 
 
     public byte[] toBytes() {
-        StringBuilder sb = new StringBuilder();
+        String timestamp = String.valueOf(time);
+        String timezone = "+0000"; // Consider computing dynamically if needed
 
-        sb.append("tree ").append(treeSha1).append("\n");
-        if (parentSha != null) {
-            sb.append("parent ").append(parentSha).append("\n");
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try {
+            // tree <sha1>
+            out.write(("tree " + treeSha1 + "\n").getBytes(StandardCharsets.UTF_8));
+
+            // parent <sha1> (optional)
+            if (parentSha != null) {
+                out.write(("parent " + parentSha + "\n").getBytes(StandardCharsets.UTF_8));
+            }
+
+            // author <name> <email> <timestamp> <timezone>
+            out.write(("author " + name + " <" + email + "> " + timestamp + " " + timezone + "\n").getBytes(StandardCharsets.UTF_8));
+
+            // committer <name> <email> <timestamp> <timezone>
+            out.write(("committer " + name + " <" + email + "> " + timestamp + " " + timezone + "\n").getBytes(StandardCharsets.UTF_8));
+
+            // empty line before commit message
+            out.write("\n".getBytes(StandardCharsets.UTF_8));
+
+            // commit message
+            out.write(commitMsg.getBytes(StandardCharsets.UTF_8));
+            out.write("\n".getBytes(StandardCharsets.UTF_8));  // optional trailing newline
+        } catch (IOException e) {
+            throw new UncheckedIOException(e); // should never happen
         }
 
-        String timestamp = String.valueOf(time);
-        String timezone = "+0000"; // You can compute it dynamically if needed
-
-        sb.append("author ")
-                .append(name).append(" <").append(email).append("> ")
-                .append(timestamp).append(" ").append(timezone).append("\n");
-
-        sb.append("committer ")
-                .append(name).append(" <").append(email).append("> ")
-                .append(timestamp).append(" ").append(timezone).append("\n");
-
-        sb.append("\n");  // Empty line before commit message
-        sb.append(commitMsg);
-        sb.append("\n");  // Empty line before commit message
-
-        return sb.toString().getBytes(StandardCharsets.UTF_8);
+        return out.toByteArray();
     }
 
-
-    public byte[] toBytess() {
-        byte[] treeHeaderbytes = "tree".getBytes(StandardCharsets.UTF_8);
-        byte[] treesha1bytes = hexToBytes(treeSha1);
-        byte[] parentshabytes = parentSha == null ? new byte[0]:hexToBytes(parentSha);
-        byte[] authorHeadingbytes = "author".getBytes(StandardCharsets.UTF_8);
-        byte[] nameBytes = name.getBytes(StandardCharsets.UTF_8);
-        byte[] emailBytes = email.getBytes(StandardCharsets.UTF_8);
-        byte[] timeBytes = longToBytes(time);
-        byte[] committerHeadingbytes = "committer".getBytes(StandardCharsets.UTF_8);
-        byte[] commitMsgbytes = commitMsg.getBytes(StandardCharsets.UTF_8);
-        byte[] result = new byte[treeHeaderbytes.length + 1 + treesha1bytes.length + 1 +
-                parentshabytes.length + 1 +
-                authorHeadingbytes.length + 1 + nameBytes.length + 1 + emailBytes.length + 1 + timeBytes.length + 1 +
-                committerHeadingbytes.length + 1 + nameBytes.length + 1 + emailBytes.length + 1 + timeBytes.length + 1 +
-                commitMsgbytes.length];
-        int pos = 0;
-
-        //tree
-        System.arraycopy(treeHeaderbytes, 0, result, pos, treeHeaderbytes.length);
-        pos += treeHeaderbytes.length;
-        result[pos++] = ' ';
-        System.arraycopy(treesha1bytes, 0, result, pos, treesha1bytes.length);
-        pos += treesha1bytes.length;
-        result[pos++] = '\n';
-
-        //parents
-        System.arraycopy(parentshabytes, 0, result, pos, parentshabytes.length);
-        pos += parentshabytes.length;
-        result[pos++] = '\n';
-
-        //Author
-        System.arraycopy(authorHeadingbytes, 0, result, pos, authorHeadingbytes.length);
-        pos += authorHeadingbytes.length;
-        result[pos++] = ' ';
-        System.arraycopy(nameBytes, 0, result, pos, nameBytes.length);
-        pos += nameBytes.length;
-        result[pos++] = ' ';
-        System.arraycopy(emailBytes, 0, result, pos, emailBytes.length);
-        pos += emailBytes.length;
-        result[pos++] = ' ';
-        System.arraycopy(timeBytes, 0, result, pos, timeBytes.length);
-        pos += timeBytes.length;
-        result[pos++] = '\n';
-
-        //Committer
-        System.arraycopy(committerHeadingbytes, 0, result, pos, committerHeadingbytes.length);
-        pos += committerHeadingbytes.length;
-        result[pos++] = ' ';
-        System.arraycopy(nameBytes, 0, result, pos, nameBytes.length);
-        pos += nameBytes.length;
-        result[pos++] = ' ';
-        System.arraycopy(emailBytes, 0, result, pos, emailBytes.length);
-        pos += emailBytes.length;
-        result[pos++] = ' ';
-        System.arraycopy(timeBytes, 0, result, pos, timeBytes.length);
-        pos += timeBytes.length;
-        result[pos++] = '\n';
-
-
-        //Commit Msg
-        System.arraycopy(commitMsgbytes, 0, result, pos, commitMsgbytes.length);
-
-        return result;
-    }
 
     private byte[] longToBytes(long value) {
         ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES); // 8 bytes
