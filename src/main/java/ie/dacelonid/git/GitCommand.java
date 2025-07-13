@@ -38,39 +38,11 @@ public class GitCommand {
     }
 
     private void writeCommitToDisk(File gitRootDirectory, String[] args) throws Exception {
-        String name = "Ken";
-        String email = "ken@codecrafters.com";
-        String treeSha1 = findSha1(args);
-        String commitMsg = findCommitMsg(args);
-        String parentSha = findParentSha(args);
-        long time = System.nanoTime();
-        CommitObject obj = new CommitObject(name, email, treeSha1, time, commitMsg, parentSha);
+        CommitObject obj = new CommitObject(args, gitRootDirectory);
         obj.write(gitRootDirectory);
         System.out.println(obj.getSha1());
     }
 
-    private String findCommitMsg(String[] args) {
-        for(int x = 0;x< args.length;x++){
-            if("-m".equals(args[x]))
-                return args[x+1];
-        }
-        return "";
-    }
-    private String findParentSha(String[] args) {
-        for(int x = 0;x< args.length;x++){
-            if("-p".equals(args[x]))
-                return args[x+1];
-        }
-        return null;
-    }
-
-    private String findSha1(String[] args) throws GitExceptions {
-        for (String arg : args) { //TODO need to ensure that this is the tree SHA and not the parent sha
-            if (arg.length() == 40)
-                return arg;
-        }
-        throw new GitExceptions();
-    }
 
     private void writeTreeToDisk(File gitRootDirectory, Path currentDirectory) throws Exception {
         TreeObject obj = new TreeObject(currentDirectory.toFile().getName());

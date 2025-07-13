@@ -1,47 +1,72 @@
 package ie.dacelonid.git.plumbing.objects;
 
+import ie.dacelonid.git.exceptions.GitExceptions;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 
+import static ie.dacelonid.git.plumbing.objects.GitObject.getTypeFromSha1Hash;
 import static ie.dacelonid.git.utils.FileUtilities.writeObject;
 import static ie.dacelonid.git.utils.HexUtilities.computeSha1;
 
-public class CommitObject extends GitObject{
+public class CommitObject {
     private final String name;
     private final String email;
     private final String treeSha1;
-
-    private String sha1;
+    private final File gitRootDirectory;
+    private String commitSha1;
     private final long time;
     private final String commitMsg;
     private final String parentSha;
 
-    public String getSha1() {
-        return sha1;
+    public CommitObject(String[] args, File gitRootDirectory) throws Exception {
+        this.gitRootDirectory = gitRootDirectory;
+        name = "Ken";
+        email = "ken@codecrafters.com";
+        treeSha1 = findSha1(args);
+        commitMsg = findCommitMsg(args);
+        parentSha = findParentSha(args);
+        time = System.nanoTime();
     }
 
-    public CommitObject(String name, String email, String treesha1, long time, String commitMsg, String parentSha) {
-        this.name = name;
-        this.email = email;
-        this.treeSha1 = treesha1;
-        this.time = time;
-        this.commitMsg = commitMsg;
-        this.parentSha = parentSha;
+    private String findSha1(String[] args) throws Exception {
+        for (String arg : args) { //TODO need to ensure that this is the tree SHA and not the parent sha
+            if (arg.length() == 40) {
+                String type = getTypeFromSha1Hash(arg, gitRootDirectory);
+                if("tree".equals(type)){
+                    return arg;
+                }
+            }
+        }
+        throw new GitExceptions();
+    }
+
+    private String findCommitMsg(String[] args) {
+        for (int x = 0; x < args.length; x++) {
+            if ("-m".equals(args[x])) return args[x + 1];
+        }
+        return "";
+    }
+
+    private String findParentSha(String[] args) {
+        for (int x = 0; x < args.length; x++) {
+            if ("-p".equals(args[x])) return args[x + 1];
+        }
+        return null;
     }
 
     public void write(File gitDirectory) throws Exception {
         writeTree(gitDirectory);
     }
 
-
     private void writeTree(File gitDirectory) throws Exception {
         byte[] content = convertTreeToBytes();
         byte[] fullData = prependHeader(content);
-        this.sha1 = computeSha1(fullData);
-        writeObject(gitDirectory, sha1, fullData);
+        this.commitSha1 = computeSha1(fullData);
+        writeObject(gitDirectory, commitSha1, fullData);
     }
 
     private byte[] convertTreeToBytes() throws IOException {
@@ -58,7 +83,6 @@ public class CommitObject extends GitObject{
         System.arraycopy(body, 0, full, headerBytes.length, body.length);
         return full;
     }
-
 
     public byte[] toBytes() {
         String timestamp = String.valueOf(time);
@@ -91,5 +115,9 @@ public class CommitObject extends GitObject{
         }
 
         return out.toByteArray();
+    }
+
+    public String getSha1() {
+        return commitSha1;
     }
 }
